@@ -4,6 +4,7 @@
 #include "../graphics/graphics_handler.h"
 #include "../physics/physics_handler.h"
 #include "../audio/audio_handler.h"
+#include "../input/input_handler.h"
 
 /**
  * @file      entity.h
