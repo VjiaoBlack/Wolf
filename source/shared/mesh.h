@@ -6,15 +6,16 @@
 #include "line.h"
 
 /**
- * @file mesh.h
- * @author John Lekberg
- * @date 2015-02-11
- * @copyright MIT License
- * 
+ * @file        mesh.h
+ * @author      John Lekberg
+ * @date        2015-02-11
+ * @modified    2015-02-11
+ * @copyright   MIT License
+ *
  * The mesh holds the static part of a level.
  */
 
-typdef struct _mesh _mesh, *mesh;
+typdef struct mesh mesh;
 
 /**
  * Loads and compiles a mesh from a given filestream. Returns NULL if there is
@@ -32,5 +33,5 @@ mesh mesh_load_from_filename(char *filename);
 /**
  * Returns an array of lines stored in the mesh.
  */
-line *mesh_lines(mesh m);
+line **mesh_lines(mesh *m);
 #endif

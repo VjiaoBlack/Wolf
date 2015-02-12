@@ -1,6 +1,6 @@
 #include "mesh.h"
 #include "line.h"
 
-struct _mesh {
+struct mesh {
     line* m_lines;
 }
