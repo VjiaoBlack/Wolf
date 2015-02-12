@@ -1,6 +1,10 @@
 #ifndef MESH_H
 #define MESH_H
 
+#include <stdio.h>
+
+#include "line.h"
+
 /**
  * @file mesh.h
  * @author John Lekberg
@@ -25,4 +29,8 @@ mesh mesh_load_from_file(FILE *file);
  */
 mesh mesh_load_from_filename(char *filename);
 
+/**
+ * Returns an array of lines stored in the mesh.
+ */
+line *mesh_lines(mesh m);
 #endif

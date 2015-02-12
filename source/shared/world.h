@@ -1,6 +1,11 @@
 #ifndef WORLD_H
 #define WORLD_H
 
+#include "entity_store.h"
+#include "../graphics/graphics_info.h"
+#include "../audio/audio_info.h"
+#include "../physics/physics_info.h"
+
 /**
  * @file world.h
  * @author John Lekberg
@@ -12,6 +17,14 @@
  * world.
  */ 
 
-typdef struct _world _world, *world;
+typdef struct _world {
+    mesh          w_mesh;
+    entity_store  w_entities;
+    graphics_info w_graphics_info;
+    audio_info    w_audio_info;
+    physics_info  w_physics_info;
+} _world, *world;
 
+world new_world();
+void  free_world(world w);
 #endif
