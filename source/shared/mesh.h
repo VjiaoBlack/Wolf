@@ -21,17 +21,23 @@ typdef struct mesh mesh;
  * Loads and compiles a mesh from a given filestream. Returns NULL if there is
  * an error in loading the mesh.
  */
-mesh mesh_load_from_file(FILE *file);
+mesh *mesh_load_from_file(FILE *file);
 
 /**
  * Wraps to a call of `mesh_load_from_file` by checking if a file exists with
  * the name `filename`, and if it does exist then returns the mesh and returns
- * NULL if the named file doesn't exist.
+ * NULL if the named file doesn' exist.
  */
-mesh mesh_load_from_filename(char *filename);
+mesh *mesh_load_from_filename(char *filename);
 
 /**
- * Returns an array of lines stored in the mesh.
+ * Destroys a mesh.
+ */ 
+void free_mesh(mesh *m);
+
+/**
+ * Iterates over every line and applies an action. The ordering is undefined.
  */
-line **mesh_lines(mesh *m);
+void mesh_for_each_line(mesh *m, void (function)(line*)); 
+
 #endif
