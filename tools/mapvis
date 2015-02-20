@@ -1,0 +1,31 @@
+#!/usr/bin/env python2
+import gizeh
+
+# invariant: num_lines == len(lines)
+class Map:
+    def __init__(self, filename):
+        with open(filename, 'r') as infile:
+            header = infile.readline().split()
+            assert len(header) == 3, "Header row should have 3 components: [num_lines] [width] [height]."
+            num_lines = int(header[0])
+            self.dimensions = (int(header[1]), int(header[2]))
+            self.lines = []
+            
+            for line in infile:
+                (x0, y0, x1, y1) = line.split()
+                self.lines.append((float(x0), float(y0), float(x1), float(y1)))
+            
+            assert num_lines == len(self.lines), "Line numbers mismatched! Expected " + str(num_lines) + " lines but found " + str(len(self.lines)) + " lines."
+    
+    def draw_png(self, filename):
+        surface = gizeh.Surface(width=self.dimensions[0], height=self.dimensions[1], bg_color=(1,1,1))
+
+        for line in self.lines:
+            (x0, y0, x1, y1) = line
+            gizeh.polyline([(x0, y0), (x1, y1)], stroke=(0,0,0), stroke_width=0.5).draw(surface)
+
+        surface.get_npimage()
+        surface.write_to_png(filename)
+
+mp = Map("test.map")
+mp.draw_png('test.png')
