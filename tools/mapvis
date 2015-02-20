@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 import gizeh
+import sys
 
 # invariant: num_lines == len(lines)
 class Map:
@@ -27,5 +28,11 @@ class Map:
         surface.get_npimage()
         surface.write_to_png(filename)
 
-mp = Map("test.map")
-mp.draw_png('test.png')
+# Drawing the map
+
+if __name__ == "__main__":
+    if len(sys.argv) == 1:
+        print "mapvis is called with two arguments, the first is the mapfile, the second is the output PNG filename."
+    else:
+        mp = Map(sys.argv[1])
+        mp.draw_png(sys.argv[2])
