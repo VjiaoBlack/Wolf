@@ -6,16 +6,37 @@
 
 struct mesh {
     line** m_lines;
+    int num_walls;
+    int map_width;
+    int map_height;
 };
 
 mesh *mesh_load_from_file(FILE *file) {
-    double length, x0, y0, x1, y1;
-    mesh* result = (mesh*)malloc(sizeof(mesh));
-    fscanf(file, "%ud", &length);
-    result->m_lines = (line**)calloc(length, sizeof(line*));
-    for (int i = 0; i != length; ++i) {
-        fscanf(file, "%d %d %d %d", &x0, &y0, &x1, &y1);
-        m_lines[i] = new_line(x0, y0, x1, y1);
+    char line_buf[256];
+
+    mesh* walls = (mesh*) malloc(sizeof(mesh));
+
+    float num, w, h;
+    float x1, y1, x2, y2;
+
+    fscanf(file, "%f %f %f\n", num, w, h);
+    walls->num_walls = num;
+    walls->map_width = w;
+    walls->map_height = h;
+    walls->m_lines = (line**) malloc(sizeof(line*) * num);
+
+    int i = 0;
+
+    while (fscanf(file, "%f %f %f %f\n", x1, y1, x2, y2)) {
+        walls->m_lines[i] = new_line(x1, y1, x2, y2);
+        i++;
     }
-    return result;
+}
+
+void free_mesh(mesh *m) {
+    int i;
+    for (i = 0; i < m->num_walls; i++) {
+        free_line(m->m_lines[i]);
+    }
+    free(m);
 }

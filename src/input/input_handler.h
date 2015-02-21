@@ -5,11 +5,17 @@
 #include <stdlib.h>
 #include <SDL2/SDL.h>
 
-char keys_held[323] = {0};
-int sdl_quit = 0;
+int keys_held[323];
+int sdl_quit;
+
+SDL_Window* window;
+SDL_Texture* texture;
+SDL_Renderer* renderer;
 
 int mouse_x, mouse_y;
 int mouse_xvel, mouse_yvel;
 
+void init_input();
+void get_input();
 
 #endif

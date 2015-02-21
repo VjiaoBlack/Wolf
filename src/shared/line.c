@@ -1,6 +1,6 @@
 #include "line.h"
 
-line* new_line(double x0, double y0, double x1, double y1) {
+line* new_line(float x0, float y0, float x1, float y1) {
     line* result = (line*)malloc(sizeof(line));
     line->position1 = new_vector(x0, y0);
     line->position2 = new_vector(x1, y1);

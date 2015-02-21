@@ -1,8 +1,15 @@
+// Victor 2/20
+
 #include "input_handler.h"
 
+void init_input() {
+    memset(keys_held,0,sizeof(keys_held));
+    sdl_quit = 0;
+}
 
 // gets input from the user
 void get_input() {
+    printf("called\n");
     SDL_Event event;
 
     if (SDL_PollEvent(&event)) {
