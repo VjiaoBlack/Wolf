@@ -12,9 +12,9 @@
  */
 
 typedef struct vector2 {
-    double x, y;
+    float x, y;
 } vector2;
 
-vector2 *new_vector2(double x, double y);
+vector2 *new_vector2(float x, float y);
 void    free_vector2(vector2 *vec);
 #endif

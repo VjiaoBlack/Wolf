@@ -1,6 +1,6 @@
 #include "vector2.h"
 
-vector2 *new_vector(double x, double y) {
+vector2 *new_vector(float x, float y) {
     vector2 *result = (vector2 *)malloc(sizeof(vector2));
     result->x = x;
     result->y = y;
