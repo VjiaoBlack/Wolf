@@ -23,7 +23,7 @@ class Map:
 
         for line in self.lines:
             (x0, y0, x1, y1) = line
-            gizeh.polyline([(x0, y0), (x1, y1)], stroke=(0,0,0), stroke_width=0.5).draw(surface)
+            gizeh.polyline([(x0, y0), (x1, y1)], stroke=(0,0,0), stroke_width=1).draw(surface)
 
         surface.get_npimage()
         surface.write_to_png(filename)

@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+require_relative 'mapgen.rb'
+
+MapGen::Map.new(name: 'testmap.map', destination: './', overwrite: true) {
+    # Centered, nested rectangles
+    (1..4).each { |num|
+        rectangle dimensions: (num * 50)
+    }
+
+    # Random rectangle
+    rectangle position: [:centered, 200, 200], dimensions: [200, 200]
+
+    # Nested topleft rectangles
+    (1..4).each { |num|
+        rectangle position: [:top_left, 100, 100], dimensions: (num * 50)
+    }
+}
