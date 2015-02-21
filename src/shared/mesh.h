@@ -38,6 +38,6 @@ void free_mesh(mesh *m);
 /**
  * Iterates over every line and applies an action. The ordering is undefined.
  */
-void mesh_for_each_line(mesh *m, void (function)(line*));
+void mesh_for_each_line(mesh *m, void (*function)(line*));
 
 #endif

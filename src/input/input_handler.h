@@ -8,9 +8,6 @@
 int keys_held[323];
 int sdl_quit;
 
-SDL_Window* window;
-SDL_Texture* texture;
-SDL_Renderer* renderer;
 
 int mouse_x, mouse_y;
 int mouse_xvel, mouse_yvel;

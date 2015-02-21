@@ -8,6 +8,8 @@ void init_input() {
 }
 
 // gets input from the user
+
+// does not handle: caps, control, fnction, option/alt, commmand, shift/tab??
 void get_input() {
     SDL_Event event;
 

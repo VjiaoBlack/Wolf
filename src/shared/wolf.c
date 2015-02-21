@@ -35,6 +35,7 @@ int main(int argc, char** argv) {
     renderer = SDL_CreateRenderer( window, 0, SDL_RENDERER_ACCELERATED);
 
 
+    game_world = new_world();
 
     init_input();
 
@@ -67,6 +68,8 @@ int main(int argc, char** argv) {
 
     }
 
+    free_world(game_world);
+
     SDL_DestroyWindow(window);
     SDL_Quit();
     exit(0);
@@ -75,6 +78,7 @@ int main(int argc, char** argv) {
 
 void draw() {
     SDL_RenderClear(renderer);
+
 
     // Creat a rect at pos ( 50, 50 ) that's 50 pixels wide and 50 pixels high.
     SDL_Rect r;
@@ -85,6 +89,12 @@ void draw() {
 
     // Set render color to blue ( rect will be rendered in this color )
     SDL_SetRenderDrawColor( renderer, 0, 0, 255, 255 );
+
+
+    void (*draw_line_p)(line*);
+    draw_line_p = &draw_line;
+    mesh_for_each_line(game_world->w_mesh,draw_line_p);
+
 
     // Render rect
     SDL_RenderFillRect( renderer, &r );

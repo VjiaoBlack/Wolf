@@ -1,16 +1,17 @@
 #ifndef WORLD_H
 #define WORLD_H
 
-#include "entity_store.h"
+// #include "entity_store.h"   // we dont have this file??/
 #include "../graphics/graphics_info.h"
 #include "../audio/audio_info.h"
 #include "../physics/physics_info.h"
+#include "mesh.h"
 
 /**
  * @file        world.h
  * @author      John Lekberg
  * @date        2015-02-11
- * @modified    2015-02-11
+ * @modified    2015-02-20 Victor Jiao
  * @copyright   MIT License
  *
  * The world is the main object of PW (Project Wolf). It contains a mesh
@@ -18,14 +19,14 @@
  * world.
  */
 
-typdef struct world {
-    mesh          w_mesh;
-    entity_store  w_entities;
-    graphics_info w_graphics_info;
-    audio_info    w_audio_info;
-    physics_info  w_physics_info;
+typedef struct world {
+    mesh*          w_mesh;
+    // entity_store  w_entities;
+    // graphics_info w_graphics_info;
+    // audio_info    w_audio_info;
+    // physics_info  w_physics_info;
 } world;
 
 world *new_world();
-void  free_world(world w);
+void  free_world(world* w);
 #endif

@@ -4,7 +4,8 @@
 #include "vector2.h"
 
 typedef struct line {
-    vector2 position1, position2;
+    vector2* position1;
+    vector2* position2;
 } line;
 
 /**

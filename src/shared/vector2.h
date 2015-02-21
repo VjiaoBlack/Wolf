@@ -1,6 +1,8 @@
 #ifndef VECTOR2_H
 #define VECTOR2_H
 
+
+#include <stdlib.h>
 /**
  * @file        vecto2.h
  * @author      John Lekberg
