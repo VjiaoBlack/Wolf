@@ -19,5 +19,6 @@ world* game_world;
 
 int main(int argc, char** argv);
 void draw();
+void init_general();
 
 #endif

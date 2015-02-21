@@ -11,3 +11,4 @@ SDL_Renderer* renderer;
 
 void draw_line(line* lin);
 
+void init_sdl();

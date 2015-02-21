@@ -3,51 +3,28 @@
 #include "wolf.h"
 
 int main(int argc, char** argv) {
-
-
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        printf("Could not initialize SDL: %s\n", SDL_GetError());
-        exit(1);
-    }
-
-    mspf = 1000 / FPS;
-
     int delay;
+    struct timeval pre, post;
 
 
 
-    mouse_x = mouse_y = 0;
-    mouse_xvel = mouse_yvel = 0;
-
-    window = SDL_CreateWindow("My Game Window",
-                          SDL_WINDOWPOS_UNDEFINED,
-                          SDL_WINDOWPOS_UNDEFINED,
-                          800, 640,
-                           SDL_WINDOW_SHOWN);
 
 
+    init_general();
 
-    if (window == NULL) {
-        printf("Couldn't set window mode %d x %d: %s\n", 800, 640, SDL_GetError());
-        SDL_Quit();
-        exit(1);
-    }
-    renderer = SDL_CreateRenderer( window, 0, SDL_RENDERER_ACCELERATED);
-
-
-    game_world = new_world();
+    init_sdl();
 
     init_input();
 
-    printf("-~Wolf~-\n");
 
-    struct timeval pre, post;
 
 
     while(1) {
         gettimeofday(&pre, NULL);
 
+
         get_input();
+
         if (keys_held[SDLK_q]) {
             SDL_DestroyWindow(window);
             SDL_Quit();
@@ -58,14 +35,10 @@ int main(int argc, char** argv) {
 
 
 
-
         gettimeofday(&post, NULL);
-
-
         if ( (delay = (post.tv_usec - pre.tv_usec) / 1000 + (post.tv_sec - pre.tv_sec)* 1000) < mspf) {
             SDL_Delay(mspf - delay);
         }
-
     }
 
     free_world(game_world);
@@ -74,6 +47,15 @@ int main(int argc, char** argv) {
     SDL_Quit();
     exit(0);
 
+}
+
+void init_general() {
+    mspf = 1000 / FPS;
+
+    mouse_x = mouse_y = 0;
+    mouse_xvel = mouse_yvel = 0;
+
+    game_world = new_world();
 }
 
 void draw() {
