@@ -15,7 +15,7 @@
  * The mesh holds the static part of a level.
  */
 
-typdef struct mesh mesh;
+ typedef struct mesh mesh;
 
 /**
  * Loads and compiles a mesh from a given filestream. Returns NULL if there is

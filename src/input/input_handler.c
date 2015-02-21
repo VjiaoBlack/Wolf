@@ -9,7 +9,6 @@ void init_input() {
 
 // gets input from the user
 void get_input() {
-    printf("called\n");
     SDL_Event event;
 
     if (SDL_PollEvent(&event)) {
@@ -17,10 +16,12 @@ void get_input() {
             sdl_quit = 1;
         }
         if (event.type == SDL_KEYUP) {  // any key is released
-            keys_held[event.key.keysym.sym] = 0;
+            if (event.key.keysym.sym < 323)
+                keys_held[event.key.keysym.sym] = 0;
         }
         if (event.type == SDL_KEYDOWN) {  // any key is pressed
-            keys_held[event.key.keysym.sym] = 1;
+            if (event.key.keysym.sym < 323)
+                keys_held[event.key.keysym.sym] = 1;
         }
         if (event.type == SDL_MOUSEMOTION) {
             mouse_x = event.motion.x;

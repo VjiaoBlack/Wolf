@@ -10,6 +10,7 @@
 #include <SDL2/SDL.h>
 #include <sys/time.h>
 #include "../input/input_handler.h"
+#include "mesh.h"
 
 int mspf;
 
