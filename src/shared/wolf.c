@@ -8,15 +8,11 @@ int main(int argc, char** argv) {
 
 
 
-
-
     init_general();
 
     init_sdl();
 
     init_input();
-
-
 
 
     while(1) {

@@ -3,10 +3,13 @@
 world *new_world() {
     world *worl = (world*) malloc(sizeof(world));
 
-    FILE* map = fopen("tools/map_visualizer/testmap.map", "r");
-    printf("woah\n");
+    FILE* map = fopen("tools/map_generator/testmap.map", "r");
+
+    if (map == NULL) {
+        printf("Invalid map file: check tools/map_visualizer/testmap.map\n");
+    }
+
     worl->w_mesh = mesh_load_from_file(map);
-    printf("asdf\n");
     return worl;
 }
 
