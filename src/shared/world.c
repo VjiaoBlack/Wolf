@@ -3,7 +3,7 @@
 world *new_world() {
     world *worl = (world*) malloc(sizeof(world));
 
-    FILE* map = fopen("tools/map_generator/testmap.map", "r");
+    FILE* map = fopen("res/testmap.map", "r");
 
     if (map == NULL) {
         printf("Invalid map file: check tools/map_visualizer/testmap.map\n");
