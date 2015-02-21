@@ -5,8 +5,8 @@ SDL_CFLAGS	=
 
 all: wolf
 
-wolf: bin/wolf.o bin/input_handler.o bin/world.o bin/mesh.o bin/line.o bin/vector2.o bin/graphics_handler.o
-	$(LINK) bin/wolf.o bin/input_handler.o bin/world.o bin/mesh.o bin/line.o bin/vector2.o bin/graphics_handler.o $(SDL_FLAGS) -o wolf
+wolf: bin/wolf.o bin/input_handler.o bin/world.o bin/mesh.o bin/line.o bin/vector2.o bin/graphics_handler.o bin/entity.o bin/enemy.o
+	$(LINK) bin/wolf.o bin/input_handler.o bin/world.o bin/mesh.o bin/line.o bin/vector2.o bin/graphics_handler.o bin/entity.o bin/enemy.o $(SDL_FLAGS) -o wolf
 
 bin/wolf.o: src/shared/wolf.h src/shared/wolf.c
 	$(COMPILE) src/shared/wolf.c -o bin/wolf.o
@@ -29,6 +29,11 @@ bin/world.o: src/shared/world.c src/shared/world.h
 bin/graphics_handler.o: src/graphics/graphics_handler.c src/graphics/graphics_handler.h
 	$(COMPILE) src/graphics/graphics_handler.c -o bin/graphics_handler.o
 
+bin/entity.o: src/shared/entity.c src/shared/entity.h
+	$(COMPILE) src/shared/entity.c -o bin/entity.o
+
+bin/enemy.o: src/algos/enemy.c src/algos/enemy.h
+	$(COMPILE) src/algos/enemy.c -o bin/enemy.o
 
 
 

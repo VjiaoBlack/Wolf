@@ -2,10 +2,8 @@
 #define WORLD_H
 
 // #include "entity_store.h"   // we dont have this file??/
-#include "../graphics/graphics_info.h"
-#include "../audio/audio_info.h"
-#include "../physics/physics_info.h"
-#include "mesh.h"
+#include "../shared/mesh.h"
+#include "../shared/entity.h"
 
 /**
  * @file        world.h
@@ -19,9 +17,12 @@
  * world.
  */
 
+struct entity;
+struct entity_store;
+
 typedef struct world {
     mesh*          w_mesh;
-    // entity_store  w_entities;
+    struct entity_store*  w_store;
     // graphics_info w_graphics_info;
     // audio_info    w_audio_info;
     // physics_info  w_physics_info;

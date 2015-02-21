@@ -48,39 +48,29 @@ void init_general() {
 
     game_world = new_world();
 
-    player_pos = new_vector2(100,100);
+    player_pos = new_vector2(300,300);
+    player_angle = (float*) malloc(sizeof(float));
+    *player_angle = 0;
+
+    add_new_entity(100,game_world,Player,player_pos,player_angle);
+
+
+    // this creates a new enemy
+    float* enemypos = (float*) malloc(sizeof(float));
+    *enemypos = 0;
+    add_new_entity(100,game_world,NPC,new_vector2(100,100),enemypos);
 }
-
-void draw() {
-    SDL_RenderClear(renderer);
-
-    // Creat a rect at pos ( 50, 50 ) that's 50 pixels wide and 50 pixels high.
-    SDL_Rect r;
-    r.x = player_pos->x - 10;
-    r.y = player_pos->y - 10;
-    r.w = 20;
-    r.h = 20;
-
-    // Set render color to blue ( rect will be rendered in this color )
-    SDL_SetRenderDrawColor( renderer, 100, 100, 255, 255 );
-
-
-    void (*draw_line_p)(line*);
-    draw_line_p = &draw_line;
-    mesh_for_each_line(game_world->w_mesh,draw_line_p);
-
-
-    // Render rect
-    SDL_RenderFillRect( renderer, &r );
-
-    SDL_RenderPresent(renderer);
-
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-}
-
 void update() {
-    float si = sin(player_angle);
-    float co = cos(player_angle);
+    update_input();
+    void (*update_enemy_p)(entity*);
+    update_enemy_p = &update_enemy;
+    for_each_entity(game_world->w_store,update_enemy_p);
+}
+
+
+void update_input() {
+    float si = sin(*player_angle);
+    float co = cos(*player_angle);
 
 
     if (keys_held['w']) {
@@ -101,10 +91,28 @@ void update() {
     }
 
     if (keys_held['a']) {
-        player_angle-=.1;
+        *player_angle-=.1;
     }
     if (keys_held['d']) {
-        player_angle+=.1;
+        *player_angle+=.1;
     }
+}
 
+
+
+void draw() {
+    SDL_RenderClear(renderer);
+
+    void (*draw_line_p)(line*);
+    draw_line_p = &draw_line;
+    mesh_for_each_line(game_world->w_mesh,draw_line_p);
+
+    void (*draw_entity_p)(entity*);
+    draw_entity_p = &draw_entity;
+    for_each_entity(game_world->w_store,draw_entity_p);
+
+    SDL_RenderPresent(renderer);
+
+
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 }

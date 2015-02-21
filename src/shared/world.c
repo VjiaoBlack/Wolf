@@ -10,6 +10,7 @@ world *new_world() {
     }
 
     worl->w_mesh = mesh_load_from_file(map);
+    worl->w_store = create_entity_store();
     return worl;
 }
 

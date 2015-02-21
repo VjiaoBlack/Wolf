@@ -1,7 +1,7 @@
 #ifndef VECTOR2_H
 #define VECTOR2_H
 
-
+#include <math.h>
 #include <stdlib.h>
 /**
  * @file        vecto2.h
@@ -19,4 +19,9 @@ typedef struct vector2 {
 
 vector2 *new_vector2(float x, float y);
 void    free_vector2(vector2 *vec);
+vector2 *add(vector2 *a, vector2 *b);
+
+float distance(vector2 *a, vector2 *b);
+
+float angle(vector2 *source, vector2 *target);
 #endif
