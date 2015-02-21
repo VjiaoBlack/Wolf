@@ -6,18 +6,12 @@ int main(int argc, char** argv) {
     int delay;
     struct timeval pre, post;
 
-
-
     init_general();
-
     init_sdl();
-
     init_input();
-
 
     while(1) {
         gettimeofday(&pre, NULL);
-
 
         get_input();
 
@@ -27,9 +21,8 @@ int main(int argc, char** argv) {
             exit(0);
         }
 
+        update();
         draw();
-
-
 
         gettimeofday(&post, NULL);
         if ( (delay = (post.tv_usec - pre.tv_usec) / 1000 + (post.tv_sec - pre.tv_sec)* 1000) < mspf) {
@@ -38,6 +31,8 @@ int main(int argc, char** argv) {
     }
 
     free_world(game_world);
+
+    free_vector2(player_pos);
 
     SDL_DestroyWindow(window);
     SDL_Quit();
@@ -52,21 +47,22 @@ void init_general() {
     mouse_xvel = mouse_yvel = 0;
 
     game_world = new_world();
+
+    player_pos = new_vector2(100,100);
 }
 
 void draw() {
     SDL_RenderClear(renderer);
 
-
     // Creat a rect at pos ( 50, 50 ) that's 50 pixels wide and 50 pixels high.
     SDL_Rect r;
-    r.x = 50;
-    r.y = 50;
-    r.w = 50;
-    r.h = 50;
+    r.x = player_pos->x - 10;
+    r.y = player_pos->y - 10;
+    r.w = 20;
+    r.h = 20;
 
     // Set render color to blue ( rect will be rendered in this color )
-    SDL_SetRenderDrawColor( renderer, 0, 0, 255, 255 );
+    SDL_SetRenderDrawColor( renderer, 100, 100, 255, 255 );
 
 
     void (*draw_line_p)(line*);
@@ -77,9 +73,38 @@ void draw() {
     // Render rect
     SDL_RenderFillRect( renderer, &r );
 
-
     SDL_RenderPresent(renderer);
 
-
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+}
+
+void update() {
+    float si = sin(player_angle);
+    float co = cos(player_angle);
+
+
+    if (keys_held['w']) {
+        player_pos->y += 2 * si;
+        player_pos->x += 2 * co;
+    }
+    if (keys_held['s']) {
+        player_pos->y -= 2 * si;
+        player_pos->x -= 2 * co;
+    }
+    if (keys_held['c']) {
+        player_pos->y += 2 * co;
+        player_pos->x -= 2 * si;
+    }
+    if (keys_held['z']) {
+        player_pos->y -= 2 * co;
+        player_pos->x += 2 * si;
+    }
+
+    if (keys_held['a']) {
+        player_angle-=.1;
+    }
+    if (keys_held['d']) {
+        player_angle+=.1;
+    }
+
 }

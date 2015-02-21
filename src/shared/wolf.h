@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <SDL2/SDL.h>
 #include <sys/time.h>
+#include <math.h>
 #include "../input/input_handler.h"
 #include "mesh.h"
 #include "world.h"
@@ -17,8 +18,12 @@
 int mspf;
 world* game_world;
 
+vector2* player_pos;
+float player_angle;
+
 int main(int argc, char** argv);
 void draw();
 void init_general();
+void update();
 
 #endif
