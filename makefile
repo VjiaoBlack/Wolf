@@ -5,8 +5,11 @@ SDL_CFLAGS	=
 
 all: wolf
 
-wolf: bin/wolf.o bin/input_handler.o bin/world.o bin/mesh.o bin/line.o bin/vector2.o bin/graphics_handler.o bin/entity.o bin/enemy.o
+wolf: bin bin/wolf.o bin/input_handler.o bin/world.o bin/mesh.o bin/line.o bin/vector2.o bin/graphics_handler.o bin/entity.o bin/enemy.o
 	$(LINK) bin/wolf.o bin/input_handler.o bin/world.o bin/mesh.o bin/line.o bin/vector2.o bin/graphics_handler.o bin/entity.o bin/enemy.o $(SDL_FLAGS) -o wolf
+
+bin:
+	mkdir bin
 
 bin/wolf.o: src/shared/wolf.h src/shared/wolf.c
 	$(COMPILE) src/shared/wolf.c -o bin/wolf.o
