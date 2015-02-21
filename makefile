@@ -6,7 +6,7 @@ SDL_CFLAGS	=
 all: wolf
 
 wolf: bin bin/wolf.o bin/input_handler.o bin/world.o bin/mesh.o bin/line.o bin/vector2.o bin/graphics_handler.o bin/entity.o bin/enemy.o
-	$(LINK) bin/wolf.o bin/input_handler.o bin/world.o bin/mesh.o bin/line.o bin/vector2.o bin/graphics_handler.o bin/entity.o bin/enemy.o $(SDL_FLAGS) -o wolf
+	$(LINK) bin/* $(SDL_FLAGS) -o wolf
 
 bin:
 	mkdir bin
