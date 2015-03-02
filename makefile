@@ -3,10 +3,13 @@ LINK		=	gcc -g -Wall -O2
 SDL_FLAGS	= 	-framework SDL2
 SDL_CFLAGS	=
 
-all: wolf
+all: wolf server
 
 wolf: bin bin/wolf.o bin/input_handler.o bin/world.o bin/mesh.o bin/line.o bin/vector2.o bin/graphics_handler.o bin/entity.o bin/enemy.o
 	$(LINK) bin/* $(SDL_FLAGS) -o wolf
+
+server: src/server/server.c src/server/server.h
+	$(LINK) src/server/server.c -o server
 
 bin:
 	mkdir bin
@@ -41,5 +44,6 @@ bin/enemy.o: src/algos/enemy.c src/algos/enemy.h
 
 
 
+
 clean:
-	rm wolf bin/*
+	rm wolf bin/* server
