@@ -16,9 +16,13 @@
 
 #define MAX_PLAYERS 4
 
+#define ID_MOVEMENT 0
+#define ID_TURNING  1
+#define ID_SHOOTING 2
+
 uint32_t serv_ips[4];
 int connected[4]; // says whether the player spot is connected or not
-char player_inputs[4];
+char player_inputs[13];
 int player_inputs_updated[4]; // -1 for n/a, 0 for old, 1 for new.
 pthread_t threads[4];
 int num_players;

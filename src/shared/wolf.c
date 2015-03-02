@@ -8,7 +8,12 @@ int main(int argc, char** argv) {
 
     init_general();
     init_sdl();
-    init_input();
+    if (argc > 1) {
+        init_multiplayer(strdup(argv[1]));
+    } else {
+        init_multiplayer("");
+        printf("what\n");
+    }
 
     while(1) {
         gettimeofday(&pre, NULL);
@@ -41,6 +46,8 @@ int main(int argc, char** argv) {
 }
 
 void init_general() {
+    server_msg[3] = '\0';
+
     mspf = 1000 / FPS;
 
     mouse_x = mouse_y = 0;
@@ -69,6 +76,8 @@ void update() {
 
 
 void update_input() {
+
+
     float si = sin(*player_angle);
     float co = cos(*player_angle);
 
@@ -76,29 +85,40 @@ void update_input() {
     if (keys_held['w']) {
         player_pos->y += 2 * si;
         player_pos->x += 2 * co;
-    }
-    if (keys_held['s']) {
+        server_msg[ID_MOVEMENT] = 'w';
+    } else if (keys_held['s']) {
         player_pos->y -= 2 * si;
         player_pos->x -= 2 * co;
-    }
-    if (keys_held['c']) {
+        server_msg[ID_MOVEMENT] = 's';
+    } else if (keys_held['c']) {
         player_pos->y += 2 * co;
         player_pos->x -= 2 * si;
-    }
-    if (keys_held['z']) {
+        server_msg[ID_MOVEMENT] = 'c';
+    } else if (keys_held['z']) {
         player_pos->y -= 2 * co;
         player_pos->x += 2 * si;
+        server_msg[ID_MOVEMENT] = 'z';
+    } else {
+        server_msg[ID_MOVEMENT] = '0';
     }
+
 
     if (keys_held['a']) {
         *player_angle-=.1;
-    }
-    if (keys_held['d']) {
+        server_msg[ID_TURNING] = 'a';
+    } else if (keys_held['d']) {
         *player_angle+=.1;
+        server_msg[ID_TURNING] = 'd';
+    } else {
+        server_msg[ID_TURNING] = '0';
     }
+
+    server_msg[ID_SHOOTING] = '0';
+
+    if (server_ip > -1)
+        write(server_ip, server_msg, 4);
+
 }
-
-
 
 void draw() {
     SDL_RenderClear(renderer);
@@ -115,4 +135,33 @@ void draw() {
 
 
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+}
+
+void init_multiplayer(char* serv) {
+    if (strlen(serv) == 0) {
+        server_ip = -1;
+        printf("no server\n");
+        return;
+    }
+
+    if ((server_ip = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        printf("\n Error : Could not create socket \n");
+        exit(1);
+    }
+
+    memset(&serv_addr, '0', sizeof(serv_addr));
+
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(5000);
+
+    if (inet_pton(AF_INET, serv, &serv_addr.sin_addr)<=0) {
+        printf("\n inet_pton error occured\n");
+        exit(1);
+    }
+
+    if (connect(server_ip, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
+        printf("\n Error : Connect Failed \n");
+        exit(1);
+
+    }
 }

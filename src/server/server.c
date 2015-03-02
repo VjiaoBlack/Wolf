@@ -1,15 +1,15 @@
 #include "server.h"
 
 void read_from_player_thread(int id) {
-    read(serv_ips[id], &player_inputs[id], 1);
+    read(serv_ips[id], player_inputs + sizeof(char) * id, 3);
     player_inputs_updated[id] = 1;
 }
 
 void write_to_players_from(int id) {
     int i;
     for (i = 0; i < MAX_PLAYERS; i++) {
-        if (i != id) {
-            write(serv_ips[i],player_inputs,MAX_PLAYERS+1);
+        if (i != id && serv_ips[i] > -1) {
+            write(serv_ips[i],player_inputs,13);
         }
     }
 }
@@ -28,11 +28,20 @@ int main(int argc, char *argv[]) {
 
     bind(listenfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
 
+    // setup variables, - means no player, 0 means no input
+    memset(player_inputs, '-', sizeof(char) * 12);
+    memset(player_inputs_updated, -1, sizeof(int) * 4);
+    memset(serv_ips, -1, sizeof(int) * 4);
+    player_inputs[12] = '\0';
+
+
+
     // maximum 4 connections
     listen(listenfd, MAX_PLAYERS);
 
     while(1) {
         serv_ips[num_players] = accept(listenfd, (struct sockaddr*)NULL, NULL);
+
         num_players++;
 
         printf("Got a connection from %s on port %d\n", inet_ntoa(serv_addr.sin_addr), htons(serv_addr.sin_port));
@@ -49,7 +58,8 @@ int is_updated() {
     int i;
     int sum = 0;
     for (i = 0; i < MAX_PLAYERS; i++) {
-        sum += player_inputs_updated[i];
+        if (player_inputs_updated[i] > -1)
+            sum += player_inputs_updated[i];
     }
     return sum == num_players;
 }
@@ -64,11 +74,12 @@ void *handle(void *pnewsock) {
     // notify client of ID
 
     while (1) {
+        // clear player input
+        memset(player_inputs, '-', sizeof(char) * 12);
         // get input from client
         read_from_player_thread(player_id);
-
         while (!is_updated());
-
+        printf("%s\n", player_inputs);
         // write to other players
         write_to_players_from(player_id);
 
