@@ -136,7 +136,7 @@ void *handle(void *pnewsock) {
             // printf("%d waiting to read\n", player_id);
             for (int i = 0; i < 4; i++) {
                 if (connected[i]) {
-                    if (player_states[i] != READING) {
+                    if (player_states[i] != READING && player_states[i] != WRITING) {
                         ready_to_read = -1;
                         // printf("%d sees %d not ready to read\n", player_id, i);
                         break;
@@ -148,7 +148,7 @@ void *handle(void *pnewsock) {
             } else if (ready_to_read == -1) {
                 ready_to_read = 0;
             }
-            usleep(10);
+            usleep(1000);
         }
         memset(player_inputs, '-', sizeof(char) * 12);
 
@@ -177,7 +177,7 @@ void *handle(void *pnewsock) {
             } else if (ready_to_write == -1) {
                 ready_to_write = 0;
             }
-            usleep(10);
+            usleep(1000);
         }
         write_to_player(player_id);
         // printf("%d wrote\n", player_id);

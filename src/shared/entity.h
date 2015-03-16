@@ -57,7 +57,7 @@ typedef struct entity_store {
 // enemy hp (if 'false', is dead);
 int damage(entity *a, int dmg);
 
-int add_new_entity(int health, struct world* worl, Kind kind, vector2* pos, float* dir, int multi_id);
+entity* add_new_entity(int health, struct world* worl, Kind kind, vector2* pos, float* dir, int multi_id);
 
 void free_entity(entity *ent, entity_store* store);
 

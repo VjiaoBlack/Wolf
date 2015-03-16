@@ -6,8 +6,6 @@ int main(int argc, char** argv) {
     int delay;
     struct timeval pre, post;
 
-    init_general();
-    init_sdl();
     if (argc > 1) {
         init_multiplayer(strdup(argv[1]));
     } else {
@@ -15,6 +13,10 @@ int main(int argc, char** argv) {
         player_id = -1;
         printf("Running in single-player mode!\n");
     }
+
+    init_general();
+    init_sdl();
+
 
     while(1) {
         gettimeofday(&pre, NULL);
@@ -49,6 +51,7 @@ int main(int argc, char** argv) {
 
 void init_general() {
     server_msg[3] = '\0';
+    memset(multi_players,0,4*sizeof(int));
 
     mspf = 1000 / FPS;
 
@@ -61,7 +64,8 @@ void init_general() {
     player_angle = (float*) malloc(sizeof(float));
     *player_angle = 0;
 
-    add_new_entity(100,game_world,Player,player_pos,player_angle, player_id);
+    player_pointers[player_id] = add_new_entity(100,game_world,Player,player_pos,player_angle, player_id);
+    multi_players[player_id] = 1;
 
 
     // this creates a new enemy
@@ -69,6 +73,7 @@ void init_general() {
     *enemypos = 0;
     add_new_entity(100,game_world,NPC,new_vector2(100,100),enemypos, -1);
 }
+
 void update() {
     update_input();
     void (*update_enemy_p)(entity*);
@@ -78,7 +83,7 @@ void update() {
 
 
 void update_input() {
-
+    int i;
 
     float si = sin(*player_angle);
     float co = cos(*player_angle);
@@ -120,7 +125,68 @@ void update_input() {
     if (server_ip > -1) {
         write(server_ip, server_msg, 3);
         read(server_ip, server_buf, 12);
+
+        for(i = 0; i < 4; i++) {
+            // skip the self player.
+            if (multi_players[i] && i != player_id) {
+                // then player i was connected.
+                if (server_buf[i*3] == 'q') {
+                    // player i disconnected.
+                    multi_players[i] = 0;
+                    // free the player entity
+                    // note: frees positions too
+                    // doesn't work....
+                    free_entity(player_pointers[i], game_world->w_store);
+                }
+            } else if (i != player_id) {
+                // player i was not connected
+                if (server_buf[i*3] != '-') {
+                    // but player i is now connected
+                    multi_players[i] = 1;
+                    // create a player i.
+                    m_player_pos[i] = new_vector2(300,300);
+                    m_player_angle[i] = (float*) malloc(sizeof(float));
+                    *m_player_angle[i] = 0;
+                    player_pointers[i] = add_new_entity(100,game_world,Player,m_player_pos[i],m_player_angle[i], i);
+                }
+            }
+        }
+
         printf("%d: %s\n", player_id, server_buf);
+
+
+        for (i = 0; i < 4; i++) {
+            // only update this for non_players
+            if (i == player_id || !multi_players[i])
+                continue;
+
+            si = sin(*m_player_angle[i]);
+            co = cos(*m_player_angle[i]);
+
+            // analyze inputs instead of keys_held
+            if (server_buf[i*3]=='w') {
+                m_player_pos[i]->y += 2 * si;
+                m_player_pos[i]->x += 2 * co;
+            } else if (server_buf[i*3]=='s') {
+                m_player_pos[i]->y -= 2 * si;
+                m_player_pos[i]->x -= 2 * co;
+            } else if (server_buf[i*3]=='c') {
+                m_player_pos[i]->y += 2 * co;
+                m_player_pos[i]->x -= 2 * si;
+            } else if (server_buf[i*3]=='z') {
+                m_player_pos[i]->y -= 2 * co;
+                m_player_pos[i]->x += 2 * si;
+            }
+
+
+            if (server_buf[i*3+1]=='a') {
+                *m_player_angle[i]-=.1;
+            } else if (server_buf[i*3+1]=='d') {
+                *m_player_angle[i]+=.1;
+            }
+        }
+
+        // update the  other players.
     }
 
 }

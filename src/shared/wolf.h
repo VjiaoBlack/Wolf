@@ -3,7 +3,7 @@
 #define WOLF_H
 
 
-#define FPS 2
+#define FPS 30
 #define PLAYER_VEL
 
 #define ID_MOVEMENT 0
@@ -32,11 +32,16 @@
 int mspf;
 int player_id;
 char server_buf[13];
+int multi_players[4];
+entity* player_pointers[4];
 
 world* game_world;
 
 vector2* player_pos;
 float* player_angle;
+
+vector2* m_player_pos[4];
+float* m_player_angle[4];
 struct sockaddr_in serv_addr;
 int server_ip;
 char server_msg[4];
