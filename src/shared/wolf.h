@@ -31,6 +31,7 @@
 
 int mspf;
 int player_id;
+char server_buf[13];
 
 world* game_world;
 

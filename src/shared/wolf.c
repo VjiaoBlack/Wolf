@@ -119,7 +119,8 @@ void update_input() {
 
     if (server_ip > -1) {
         write(server_ip, server_msg, 3);
-        printf("%d: %s\n", player_id, server_msg);
+        read(server_ip, server_buf, 12);
+        printf("%d: %s\n", player_id, server_buf);
     }
 
 }
@@ -176,5 +177,11 @@ void init_multiplayer(char* serv) {
     read(server_ip, id_buf, 5);
     player_id = atoi(id_buf);
     printf("read player id!\n");
+
+
+
+    memset(server_buf, '-', sizeof(char) * 12);
+
+    server_buf[12] = '\0';
 
 }

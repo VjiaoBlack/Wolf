@@ -2,30 +2,26 @@
 
 void read_from_player_thread(int id) {
 
-    printf("---> %d\n", id);
+    // printf("---> %d\n", id);
     if (0 >= read(serv_ips[id], player_inputs + sizeof(char) * id * 3, 3)) {
-        printf("QUIT\n");
-        exit(1);
+
+        exit_thread(id);
     }
-    printf("read from %d.\n", id);
-    // printf("%d: |%c,%c,%c| \n",   id, player_inputs[id*3], player_inputs[id*3+1], player_inputs[id*3+2]);
+    // printf("read from %d.\n", id);
     player_inputs_updated[id] = 1;
 }
 
-void write_to_players_from(int id) {
+void write_to_player(int id) {
     // int i;
     // for (i = 0; i < MAX_PLAYERS; i++) {
-    //     if (i != id && serv_ips[i] > -1) {
-    //         write(serv_ips[i],player_inputs,13);
-    //     }
+        // if (i != id && serv_ips[i] > -1) {
+            write(serv_ips[id],player_inputs,12);
+        // }
     // }
 }
 
 int main(int argc, char *argv[]) {
 
-    // lol = 0;
-    is_okay = 0;
-    done = 0;
     int listenfd = 0;
     struct sockaddr_in serv_addr;
     int sock;
@@ -45,6 +41,7 @@ int main(int argc, char *argv[]) {
     // setup variables, - means no player, 0 means no input
     memset(player_inputs, '-', sizeof(char) * 12);
     memset(player_inputs_updated, -1, sizeof(int) * 4);
+    memset(player_states, -1, sizeof(int) * 4);
     memset(serv_ips, -1, sizeof(int) * 4);
     memset(connected, 0, sizeof(int) * 4);
 
@@ -60,14 +57,19 @@ int main(int argc, char *argv[]) {
         // WARNING - NEXT LINE DOES NOT HANDLE PLAYER QUIT AND THEN JOIN
         sock = accept(listenfd, (struct sockaddr*)NULL, NULL);
 
-        // update
-        check_players();
-        okaypass = 0;
-
-        bypass = 1;
+        int i;
+        next_empty = -1;
+        for (i = 0; i < 4; i++) {
+            if (next_empty == -1 && !connected[i]) {
+                next_empty = i;
+                printf("  %d is the first unconnected player. Players now: %d\n", i, ++num_players);
+                break;
+            }
+        }
 
         serv_ips[next_empty] = sock;
         connected[next_empty] = 1;
+
 
 
         printf("  Got a connection from %s on port %d\n", inet_ntoa(serv_addr.sin_addr), htons(serv_addr.sin_port));
@@ -100,6 +102,10 @@ void *handle(void *pnewsock) {
 
     int i;
 
+
+    int ready_to_read;
+    int ready_to_write;
+
     // assign player ID to thread
     int player_id = next_empty;
 
@@ -110,54 +116,71 @@ void *handle(void *pnewsock) {
 
     // try to have the is_updated function testing in the CENTRAL main function...
     while (1) {
-        // clear player input
-        memset(player_inputs, '-', sizeof(char) * 12);
+        // update
+        // check_players();
 
-        while ((done != 0)) {
-            if (bypass) {
-                break;
+
+        // clear input for unconnected players
+        for (i = 0; i<4; i++) {
+            if (!connected[i]) {
+                memset(player_inputs + 3 * i, '-', sizeof(char) * 3);
             }
-            printf("%d: things not completed... byp: %d\n", player_id, bypass);
-            sleep(1);
         }
-        done = num_players;
-
 
         // get input from client
-        // printf("%d -- %d\n", player_id, ++lol);
-        // while ( lol < num_players ) {
-        //     printf("%d..lol.\n", player_id);
-        //     sleep(1);
-        // }
+        player_states[player_id] = READING;
+
+        ready_to_read = 0;
+        // printf("%d ready to read\n", player_id);
+        while (!ready_to_read) {
+            // printf("%d waiting to read\n", player_id);
+            for (int i = 0; i < 4; i++) {
+                if (connected[i]) {
+                    if (player_states[i] != READING) {
+                        ready_to_read = -1;
+                        // printf("%d sees %d not ready to read\n", player_id, i);
+                        break;
+                    }
+                }
+            }
+            if (ready_to_read == 0) {
+                ready_to_read = 1;
+            } else if (ready_to_read == -1) {
+                ready_to_read = 0;
+            }
+            usleep(10);
+        }
+        memset(player_inputs, '-', sizeof(char) * 12);
 
         read_from_player_thread(player_id);
-        is_okay++;
-        while (is_okay != num_players) {
-            if (okaypass)  {
-                okaypass = 0;
-                break;
-            }
-            printf("%d: not okay... %d, %d\n", player_id, is_okay, num_players);
-            sleep(1);
-        }
-        printf("%d: achieved okay... %d, %d\n", player_id, is_okay, num_players);
+        // printf("%d read\n", player_id);
 
 
-        while (!is_updated(player_id)) {
-            sleep(1);
-        }
-
-
-        is_okay--;
-        okaypass = 1;
-        while (is_okay > 0) {
-            printf("%d: is watiing, %d\n", player_id, is_okay);
-            sleep(1);
-        }
-        printf("%d: is ookay! %d\n", player_id, is_okay);
-        // printf("%d: |%c%c%c| \n", player_id, player_inputs[player_id], player_inputs[player_id], player_inputs[player_id]);
         // write to other players
-        // write_to_players_from(player_id);
+        player_states[player_id] = WRITING;
+
+        ready_to_write = 0;
+        // printf("%d ready to write\n", player_id);
+        while (!ready_to_write) {
+            // printf("%d waiting to write\n", player_id);
+            for (int i = 0; i < 4; i++) {
+                if (connected[i]) {
+                    if (player_states[i] != WRITING) {
+                        ready_to_write = -1;
+                        // printf("%d sees %d not ready to write\n", player_id, i);
+                        break;
+                    }
+                }
+            }
+            if (ready_to_write == 0) {
+                ready_to_write = 1;
+            } else if (ready_to_write == -1) {
+                ready_to_write = 0;
+            }
+            usleep(10);
+        }
+        write_to_player(player_id);
+        // printf("%d wrote\n", player_id);
 
         // set player_input to old if it's not -1
         for (i = 0; i < MAX_PLAYERS; i++) {
@@ -166,22 +189,7 @@ void *handle(void *pnewsock) {
             }
         }
 
-        // lol = 0;
-
-        done--;
-        if (bypass) {
-            bypass = 0;
-
-        }
-        printf("%d is done... %d\n", player_id, done);
-
-
-        while (done != 0) {
-            printf("%d sees not all done... %d\n", player_id, done);
-            sleep(1);
-        }
-
-        printf("\n");
+        // printf("%d end\n\n", player_id);
     }
 
 }
@@ -190,20 +198,22 @@ void *handle(void *pnewsock) {
 void check_players() {
 
     int i;
-    next_empty = -1;
     for (i = 0; i < 4; i++) {
         // this code for disconnected checking doesnt work.
         if (player_inputs[i*3] == 'q') {
-            num_players--;
-            next_empty = i;
-            connected[i] = 0;
-            printf("  %d has disconnected.\n", i);
-        } else if (next_empty == -1 && !connected[i]) {
-            next_empty = i;
-            printf("  %d is the first unconnected player. Players now: %d\n", i, ++num_players);
-
-
+            exit_thread(i);
         }
     }
 }
 
+
+void exit_thread(int id) {
+    num_players--;
+    next_empty = id;
+    connected[id] = 0;
+    player_inputs_updated[id] = -1;
+    player_states[id] = -1;
+    printf("  %d has disconnected.\n", id);
+
+    pthread_exit(threads[id]);
+}
