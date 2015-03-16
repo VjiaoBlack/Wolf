@@ -89,6 +89,7 @@ kiwi *new_kiwi(int screen_width_pix, int screen_height_pix, double screen_width_
         }
     }
 
+    kiwi_show(result);
     return result;
 
     error:
@@ -111,7 +112,7 @@ void free_kiwi(kiwi* screen) {
  */
 void pre_workout() {
     if ( SDL_Init( SDL_INIT_VIDEO ) < 0 ) {
-        fprintf("SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
+        fprintf( stderr, "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
         return;
     }
 
@@ -126,3 +127,23 @@ void pre_workout() {
 void post_workout() {
     SDL_Quit();
 }
+
+/*
+ * Draws a polygon in the kiwi.
+ */
+void kiwi_draw_polygon(kiwi *screen, kiwi_polygon *poly) {
+    glBegin( GL_TRIANGLES );
+        glVertex3f(poly->x1, poly->y1, poly->z1);
+        glVertex3f(poly->x2, poly->y2, poly->z2);
+        glVertex3f(poly->x3, poly->y3, poly->z3);
+    glEnd();
+}
+
+/*
+ * Displays the current kiwi screen.
+ */
+void kiwi_show(kiwi *screen) {
+    SDL_GL_SwapWindow( screen->gWindow );
+    glClear( GL_COLOR_BUFFER_BIT );
+}
+     

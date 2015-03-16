@@ -7,6 +7,14 @@
 typedef struct kiwi kiwi;
 
 /*
+ * POLYGON: POLYGON Or Love, You Give Our Name
+ * POLYGON holds a triangle.
+ */
+typedef struct kiwi_polygon {
+    float x1, x2, x3, y1, y2, y3, z1, z2, z3;
+} kiwi_polygon;
+
+/*
  * Creates a new Kiwi with the given screen width and height (in pixels) and sets two normalizing width and heights.
  * Returns NULL on an error.
  * example:
@@ -28,4 +36,14 @@ void pre_workout();
  * Run ONLY once after destroying all kiwis. Destroys the environment.
  */
 void post_workout();
+
+/*
+ * Draws a polygon in the kiwi.
+ */
+void kiwi_draw_polygon(kiwi *screen, kiwi_polygon *poly);
+    
+/*
+ * Displays the current kiwi screen.
+ */
+void kiwi_show(kiwi *screen);
 #endif
