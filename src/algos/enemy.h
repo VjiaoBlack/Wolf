@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include "../shared/world.h"
 #include "../shared/wolf.h"
+#include "../physics/physics_handler.h"
 #include <math.h>
 
 

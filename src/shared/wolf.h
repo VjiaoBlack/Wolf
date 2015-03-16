@@ -3,7 +3,7 @@
 #define WOLF_H
 
 
-#define FPS 2
+#define FPS 60
 #define PLAYER_VEL
 
 #define ID_MOVEMENT 0
