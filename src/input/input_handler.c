@@ -13,7 +13,7 @@ void init_input() {
 void get_input() {
     SDL_Event event;
 
-    if (SDL_PollEvent(&event)) {
+    while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
             sdl_quit = 1;
         }

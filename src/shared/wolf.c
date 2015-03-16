@@ -12,7 +12,8 @@ int main(int argc, char** argv) {
         init_multiplayer(strdup(argv[1]));
     } else {
         init_multiplayer("");
-        printf("what\n");
+        player_id = -1;
+        printf("Running in single-player mode!\n");
     }
 
     while(1) {
@@ -21,6 +22,7 @@ int main(int argc, char** argv) {
         get_input();
 
         if (keys_held[SDLK_q]) {
+            write(server_ip, "qqq", 4);
             SDL_DestroyWindow(window);
             SDL_Quit();
             exit(0);
@@ -59,13 +61,13 @@ void init_general() {
     player_angle = (float*) malloc(sizeof(float));
     *player_angle = 0;
 
-    add_new_entity(100,game_world,Player,player_pos,player_angle);
+    add_new_entity(100,game_world,Player,player_pos,player_angle, player_id);
 
 
     // this creates a new enemy
     float* enemypos = (float*) malloc(sizeof(float));
     *enemypos = 0;
-    add_new_entity(100,game_world,NPC,new_vector2(100,100),enemypos);
+    add_new_entity(100,game_world,NPC,new_vector2(100,100),enemypos, -1);
 }
 void update() {
     update_input();
@@ -115,8 +117,10 @@ void update_input() {
 
     server_msg[ID_SHOOTING] = '0';
 
-    if (server_ip > -1)
-        write(server_ip, server_msg, 4);
+    if (server_ip > -1) {
+        write(server_ip, server_msg, 3);
+        printf("%d: %s\n", player_id, server_msg);
+    }
 
 }
 
@@ -164,4 +168,13 @@ void init_multiplayer(char* serv) {
         exit(1);
 
     }
+
+    char id_buf[4];
+
+    // get player_id
+    printf("reading player id...\n");
+    read(server_ip, id_buf, 5);
+    player_id = atoi(id_buf);
+    printf("read player id!\n");
+
 }

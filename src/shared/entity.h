@@ -28,6 +28,9 @@ typedef enum {Player, NPC} Kind;
 typedef struct entity {
     int ID;
 
+    int multi_id; // only used for other players
+                  // -1 for multiplayer
+
     Kind kind;
     int health;
     vector2 *position;
@@ -54,7 +57,7 @@ typedef struct entity_store {
 // enemy hp (if 'false', is dead);
 int damage(entity *a, int dmg);
 
-int add_new_entity(int health, struct world* worl, Kind kind, vector2* pos, float* dir);
+int add_new_entity(int health, struct world* worl, Kind kind, vector2* pos, float* dir, int multi_id);
 
 void free_entity(entity *ent, entity_store* store);
 

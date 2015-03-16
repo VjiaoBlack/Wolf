@@ -5,7 +5,7 @@ int damage(entity *a, int dmg) {
     return (a->health -= dmg);
 }
 
-int add_new_entity(int health, world* worl, Kind kind, vector2* pos, float* dir) {
+int add_new_entity(int health, world* worl, Kind kind, vector2* pos, float* dir, int multi_id) {
 
     entity *ent = malloc(sizeof(entity));
     if (worl->w_store->open_spots) {
@@ -21,6 +21,7 @@ int add_new_entity(int health, world* worl, Kind kind, vector2* pos, float* dir)
     ent->position = pos;
     ent->bearing = dir;
     ent->e_mesh = worl->w_mesh;
+    ent->multi_id = multi_id;
 
     worl->w_store->entities = (entity**) realloc(worl->w_store->entities, sizeof(entity*) * worl->w_store->num_entities);
 

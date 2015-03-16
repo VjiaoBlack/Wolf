@@ -26,12 +26,20 @@ char player_inputs[13];
 int player_inputs_updated[4]; // -1 for n/a, 0 for old, 1 for new.
 pthread_t threads[4];
 int num_players;
+int next_empty;
+int is_okay;
+int done;
+int bypass;
+int okaypass;
+
+// int lol;
 
 int main(int, char**);
 void* handle(void*);
 
 void read_from_player_thread(int);
 void write_to_players_from(int);
-int is_updated();
+int is_updated(int);
 
+void check_players();
 #endif

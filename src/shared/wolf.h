@@ -3,7 +3,7 @@
 #define WOLF_H
 
 
-#define FPS 60
+#define FPS 2
 #define PLAYER_VEL
 
 #define ID_MOVEMENT 0
@@ -30,7 +30,7 @@
 
 
 int mspf;
-
+int player_id;
 
 world* game_world;
 
