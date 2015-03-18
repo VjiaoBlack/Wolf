@@ -5,16 +5,19 @@ SDL_CFLAGS	=
 
 all: wolf server
 
-wolf:   bin bin/wolf.o bin/input_handler.o bin/world.o bin/mesh.o bin/line.o bin/vector2.o bin/graphics_handler.o bin/entity.o bin/physics_handler.o
-	$(LINK) bin/wolf.o bin/input_handler.o bin/world.o bin/mesh.o bin/line.o bin/vector2.o bin/graphics_handler.o bin/entity.o bin/physics_handler.o $(SDL_FLAGS) -o wolf
+wolf:   bin bin/wolf.o bin/input_handler.o bin/world.o bin/mesh.o bin/line.o bin/vector2.o bin/graphics_handler.o bin/entity.o bin/physics_handler.o bin/physics_info.o
+	$(LINK) bin/wolf.o bin/input_handler.o bin/world.o bin/mesh.o bin/line.o bin/vector2.o bin/graphics_handler.o bin/entity.o bin/physics_handler.o bin/physics_info.o $(SDL_FLAGS) -o wolf
 
 
-server: bin bin/server.o bin/world.o bin/mesh.o bin/line.o bin/vector2.o bin/entity.o bin/enemy.o bin/physics_handler.o
-	$(LINK) bin/server.o bin/world.o bin/mesh.o bin/line.o bin/vector2.o bin/entity.o bin/enemy.o bin/physics_handler.o -o server
+server: bin bin/server.o bin/world.o bin/mesh.o bin/line.o bin/vector2.o bin/entity.o bin/enemy.o bin/physics_handler.o bin/physics_info.o
+	$(LINK) bin/server.o bin/world.o bin/mesh.o bin/line.o bin/vector2.o bin/entity.o bin/enemy.o bin/physics_handler.o bin/physics_info.o -o server
 
 
 bin:
 	mkdir bin
+
+bin/physics_info.o: src/physics/physics_info.c src/physics/physics_info.h
+	$(COMPILE) src/physics/physics_info.c -o bin/physics_info.o
 
 bin/server.o: src/server/server.c src/server/server.h
 	$(COMPILE) src/server/server.c -o bin/server.o

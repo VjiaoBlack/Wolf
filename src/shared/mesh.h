@@ -15,8 +15,12 @@
  * The mesh holds the static part of a level.
  */
 
- typedef struct mesh mesh;
-
+ typedef struct mesh {
+    line** m_lines;
+    int num_walls;
+    int map_width;
+    int map_height;
+} mesh;
 /**
  * Loads and compiles a mesh from a given filestream. Returns NULL if there is
  * an error in loading the mesh.

@@ -18,10 +18,10 @@ void update_enemy(entity* ent) {
         float si = sin(*ent->bearing);
         float co = cos(*ent->bearing);
 
-        if (valid_move(ent->position, 1.5 * co, 1.5 * si, game_world)) {
+        // if (valid_move(ent->position, 1.5 * co, 1.5 * si, game_world)) {
             ent->position->x += 1.5 * co;
             ent->position->y += 1.5 * si;
-        }
+        // }
 
 
     }

@@ -122,7 +122,11 @@ void update_input() {
         output_buf[ID_TURNING] = '0';
     }
 
-    output_buf[ID_SHOOTING] = '0';
+    if (keys_held[' ']) {
+        output_buf[ID_SHOOTING] = ' ';
+    } else {
+        output_buf[ID_SHOOTING] = '0';
+    }
 
     if (server_ip > -1) {
         write(server_ip, output_buf, 3);

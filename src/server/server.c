@@ -185,26 +185,41 @@ void update_input() {
         si = sin(*m_player_angle[i]);
         co = cos(*m_player_angle[i]);
 
+        float x = 0;
+        float y = 0;
+
         // analyze inputs
         if (input_buf[i*3]=='w') {
-            m_player_pos[i]->y += 2 * si;
-            m_player_pos[i]->x += 2 * co;
+            y = 2 * si;
+            x = 2 * co;
         } else if (input_buf[i*3]=='s') {
-            m_player_pos[i]->y -= 2 * si;
-            m_player_pos[i]->x -= 2 * co;
+            y = -2 * si;
+            x = -2 * co;
         } else if (input_buf[i*3]=='c') {
-            m_player_pos[i]->y += 2 * co;
-            m_player_pos[i]->x -= 2 * si;
+            y = 2 * co;
+            x = -2 * si;
         } else if (input_buf[i*3]=='z') {
-            m_player_pos[i]->y -= 2 * co;
-            m_player_pos[i]->x += 2 * si;
+            y = -2 * co;
+            x = 2 * si;
         }
 
+
+        // if (valid_move(m_player_pos[i], x, y, game_world)) {
+            m_player_pos[i]->x += x;
+            m_player_pos[i]->y += y;
+        // }
 
         if (input_buf[i*3+1]=='a') {
             *m_player_angle[i]-=.1;
         } else if (input_buf[i*3+1]=='d') {
             *m_player_angle[i]+=.1;
+        }
+
+
+        if (input_buf[i*3+2]==' ') {
+            // THERE IS A SHOT
+            // DRAW THE LINE
+            //
         }
     }
 
