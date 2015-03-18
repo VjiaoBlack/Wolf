@@ -22,6 +22,7 @@ void update_enemy(entity* ent) {
             ent->position->x += 1.5 * co;
             ent->position->y += 1.5 * si;
         }
+        //else sleep(10);
 
 
     }

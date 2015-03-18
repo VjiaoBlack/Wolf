@@ -24,11 +24,17 @@ float distance(vector2 *a, vector2 *b) {
     return sqrt( pow(a->x - b->x, 2) + pow(a->y - b->y, 2) );
 }
 
+float square_distance(vector2 *a, vector2 *b) {
+    return fmax(abs(a->x - b->x), abs(a->y - b->y));
+}
+
 float angle(vector2 *source, vector2 *target) {
     // returns angle from source to target.
 
-    double src_angle = atan2(source->y, source->x);
-    double tar_angle = atan2(target->y, target->x);
 
-    return (float) (tar_angle - src_angle);
+    return atan2(target->y - source->y, target->x - source->x);
+    // double src_angle = atan2(source->y, source->x);
+    // double tar_angle = atan2(target->y, target->x);
+
+    // return (float) (tar_angle - src_angle);
 }

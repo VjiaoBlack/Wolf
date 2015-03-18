@@ -26,7 +26,9 @@
 #include "../input/input_handler.h"
 #include "../graphics/graphics_handler.h"
 #include "../shared/world.h"
+#include "../shared/mesh.h"
 #include "../algos/enemy.h"
+#include "../physics/physics_info.h"
 
 
 int mspf;

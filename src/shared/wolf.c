@@ -41,6 +41,8 @@ int main(int argc, char** argv) {
 
     free_vector2(player_pos);
 
+    free_terrain(); 
+
     SDL_DestroyWindow(window);
     SDL_Quit();
     exit(0);
@@ -56,6 +58,7 @@ void init_general() {
     mouse_xvel = mouse_yvel = 0;
 
     game_world = new_world();
+    initialize_terrain(game_world->w_mesh);
 
     player_pos = new_vector2(300,300);
     player_angle = (float*) malloc(sizeof(float));
@@ -67,7 +70,7 @@ void init_general() {
     // this creates a new enemy
     float* enemypos = (float*) malloc(sizeof(float));
     *enemypos = 0;
-    add_new_entity(100,game_world,NPC,new_vector2(100,100),enemypos, -1);
+    add_new_entity(100,game_world,NPC,new_vector2(25,25),enemypos, -1);
 }
 void update() {
     update_input();

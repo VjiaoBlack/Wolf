@@ -22,6 +22,7 @@ void    free_vector2(vector2 *vec);
 vector2 *add(vector2 *a, vector2 *b);
 
 float distance(vector2 *a, vector2 *b);
+float square_distance(vector2 *a, vector2 *b);
 
 float angle(vector2 *source, vector2 *target);
 #endif

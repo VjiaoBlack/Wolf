@@ -5,7 +5,7 @@ SDL_CFLAGS	=
 
 all: wolf server
 
-wolf: bin bin/wolf.o bin/input_handler.o bin/world.o bin/mesh.o bin/line.o bin/vector2.o bin/graphics_handler.o bin/entity.o bin/enemy.o bin/physics_handler.o
+wolf: bin bin/wolf.o bin/input_handler.o bin/world.o bin/mesh.o bin/line.o bin/vector2.o bin/graphics_handler.o bin/entity.o bin/enemy.o bin/physics_handler.o bin/physics_info.o
 	$(LINK) bin/* $(SDL_FLAGS) -o wolf
 
 server: src/server/server.c src/server/server.h
@@ -34,6 +34,9 @@ bin/world.o: src/shared/world.c src/shared/world.h
 
 bin/graphics_handler.o: src/graphics/graphics_handler.c src/graphics/graphics_handler.h
 	$(COMPILE) src/graphics/graphics_handler.c -o bin/graphics_handler.o
+
+bin/physics_info.o: src/physics/physics_info.c src/physics/physics_info.h
+	$(COMPILE) src/physics/physics_info.c -o bin/physics_info.o
 
 bin/physics_handler.o: src/physics/physics_handler.c src/physics/physics_handler.h
 	$(COMPILE) src/physics/physics_handler.c -o bin/physics_handler.o

@@ -3,12 +3,6 @@
 
 #include "mesh.h"
 
-struct mesh {
-    line** m_lines;
-    int num_walls;
-    int map_width;
-    int map_height;
-};
 
 mesh *mesh_load_from_file(FILE *file) {
     mesh* walls = (mesh*) malloc(sizeof(mesh));
