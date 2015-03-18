@@ -70,7 +70,7 @@ void init_general() {
     // this creates a new enemy
     float* enemypos = (float*) malloc(sizeof(float));
     *enemypos = 0;
-    add_new_entity(100,game_world,NPC,new_vector2(25,25),enemypos, -1);
+    add_new_entity(100,game_world,NPC,new_vector2(100,100),enemypos, -1);
 }
 void update() {
     update_input();

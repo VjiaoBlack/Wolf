@@ -8,7 +8,7 @@
 #include <math.h>
 
 #define RADIUS 2
-#define CIRCLES_PER_RADIUS 
+#define CIRCLES_PER_RADIUS 2
 
 typedef struct terrain {
 	vector2 **obstacles;
