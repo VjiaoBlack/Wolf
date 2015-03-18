@@ -201,6 +201,22 @@ void draw() {
                 break;
             case 2:
                 // BULLET
+
+                switch(mult_id) {
+                    case 0:
+                        SDL_SetRenderDrawColor( renderer, 150, 150, 255, 255 );
+                        break;
+                    case 1:
+                        SDL_SetRenderDrawColor( renderer, 150, 255, 150, 255 );
+                        break;
+                    case 2:
+                        SDL_SetRenderDrawColor( renderer, 150, 200, 200, 255 );
+                        break;
+                    case 3:
+                        SDL_SetRenderDrawColor( renderer, 200, 150, 200, 255 );
+                        break;
+
+                }
                 SDL_RenderDrawLine(renderer,x-10*cos((float) dir / 10.0),y-10*sin((float) dir / 10.0),x ,y);
 
                 break;
