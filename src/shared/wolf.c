@@ -133,7 +133,7 @@ void update_input() {
 
         read(server_ip, input_buf, 512);
 
-        printf("%s--\n", input_buf);
+        // printf("%s--\n", input_buf);
 
         // update the  other players.
     }
@@ -172,33 +172,43 @@ void draw() {
         switch (kind) {
             case 0:
                 // NPC
-                SDL_SetRenderDrawColor( renderer, 255, 100, 100, 255 );
+                SDL_SetRenderDrawColor( renderer, (int) (1.55 * (float) hp) + 100, 100, 100, 255 );
+                SDL_RenderFillRect( renderer, &r );
+                SDL_RenderDrawLine(renderer,x,y,x + 20*cos((float) dir / 10.0),y + 20*sin((float) dir / 10.0));
+
+
                 break;
             case 1:
                 // PLAYER
                 switch(mult_id) {
                     case 0:
-                        SDL_SetRenderDrawColor( renderer, 100, 100, 255, 255 );
+                        SDL_SetRenderDrawColor( renderer, 100, 100, (int) (1.55 * (float) hp) + 100, 255 );
                         break;
                     case 1:
-                        SDL_SetRenderDrawColor( renderer, 100, 255, 100, 255 );
+                        SDL_SetRenderDrawColor( renderer, 100, (int) (1.55 * (float) hp) + 100, 100, 255 );
                         break;
                     case 2:
-                        SDL_SetRenderDrawColor( renderer, 100, 200, 200, 255 );
+                        SDL_SetRenderDrawColor( renderer, 100, (int) (2.00 * (float) hp) + 100, (int) (2.00 * (float) hp) + 100, 255 );
                         break;
                     case 3:
-                        SDL_SetRenderDrawColor( renderer, 200, 100, 200, 255 );
+                        SDL_SetRenderDrawColor( renderer, (int) (2.00 * (float) hp) + 100, 100, (int) (2.00 * (float) hp) + 100, 255 );
                         break;
 
                 }
+                SDL_RenderFillRect( renderer, &r );
+                SDL_RenderDrawLine(renderer,x,y,x + 20*cos((float) dir / 10.0),y + 20*sin((float) dir / 10.0));
+
+                break;
+            case 2:
+                // BULLET
+                SDL_RenderDrawLine(renderer,x-10*cos((float) dir / 10.0),y-10*sin((float) dir / 10.0),x ,y);
+
                 break;
         }
 
 
-        SDL_RenderDrawLine(renderer,x,y,x + 20*cos((float) dir / 10.0),y + 20*sin((float) dir / 10.0));
 
         // Render rect
-        SDL_RenderFillRect( renderer, &r );
 
 
         // inc i

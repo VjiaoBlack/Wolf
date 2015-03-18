@@ -23,7 +23,7 @@
 
 struct world;
 
-typedef enum {Player, NPC} Kind;
+typedef enum {Player, NPC, Bullet} Kind;
 
 typedef struct entity {
     int ID;

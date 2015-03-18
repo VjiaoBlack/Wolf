@@ -30,6 +30,8 @@ int connected[4]; // says whether the player spot is connected or not
 char input_buf[13];
 char output_buf[512];
 
+int shot[4];
+
 int num_players;
 int next_empty;
 

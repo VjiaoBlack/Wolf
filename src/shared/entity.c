@@ -32,16 +32,15 @@ entity* add_new_entity(int health, world* worl, Kind kind, vector2* pos, float* 
 
 void free_entity(entity* ent, entity_store* store) {
     free(ent->position);
-    free(ent->position);
     store->num_entities--;
 
     int_node* node = (int_node*) malloc(sizeof(int_node));
     node->value = ent->ID;
     node->next = store->open_spots;
     store->open_spots = node;
+    store->entities[ent->ID] = NULL;
 
     // cant free the mesh... lol.
-
     free(ent);
 }
 
@@ -80,10 +79,18 @@ void for_each_entity(entity_store *store, void (*function)(entity*)) {
     int i = 0;
     int j = 0;
     while (j < store->num_entities) {
-        if (store->entities[i]) {
+        // printf("test\n");
+        if (store->entities[i] != NULL) {
+            // printf("not null %d\n", j);
             (*function)(store->entities[i]);
+            // printf("ran func\n");
             j++;
+
+        } else {
+            // printf("null\n");
         }
         i++;
     }
+
+    // printf("end of entitys\n");
 }

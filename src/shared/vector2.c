@@ -21,6 +21,7 @@ vector2 *add(vector2 *a, vector2 *b) {
 }
 
 float distance(vector2 *a, vector2 *b) {
+    // printf("asdf\n");
     return sqrt( pow(a->x - b->x, 2) + pow(a->y - b->y, 2) );
 }
 

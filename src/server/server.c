@@ -18,7 +18,7 @@ void read_from_player_thread(int id) {
 void write_to_player(int id) {
     // printf("pre-write\n");
     serialize_world(output_buf, game_world);
-    printf("%s\n", output_buf);
+    // printf("%s\n", output_buf);
     write(client_ips[id],output_buf, 512 * sizeof(char));
 }
 
@@ -104,7 +104,7 @@ void handle() {
     int i;
 
     while (!yes && num_players) {
-        printf("%d %d\n", yes, num_players);
+        // printf("%d %d\n", yes, num_players);
     for (i = 0; i < 4; i++) {
         if (connected[i]) {
             read_from_player_thread(i);
@@ -154,6 +154,8 @@ void exit_player(int id) {
 
 void init_general() {
 
+    memset(shot, 0, sizeof(int) * 4);
+
 
     mouse_x = mouse_y = 0;
     mouse_xvel = mouse_yvel = 0;
@@ -175,6 +177,10 @@ void update() {
     void (*update_enemy_p)(entity*);
     update_enemy_p = &update_enemy;
     for_each_entity(game_world->w_store,update_enemy_p);
+
+    void (*update_bullet_p)(entity*);
+    update_bullet_p = &update_bullet;
+    for_each_entity(game_world->w_store,update_bullet_p);
 }
 
 
@@ -222,10 +228,13 @@ void update_input() {
         }
 
 
-        if (input_buf[i*3+2]==' ') {
+        if (input_buf[i*3+2]==' ' && shot[i] == 0) {
             // THERE IS A SHOT
-            // DRAW THE LINE
-            //
+            // CREATE A BULET
+            shot[i] = 1;
+            float* bearing = malloc(sizeof(float));
+            *bearing = *m_player_angle[i];
+            add_new_entity(20,game_world,Bullet,new_vector2(m_player_pos[i]->x,m_player_pos[i]->y),bearing, i);
         }
     }
 
@@ -247,7 +256,7 @@ void serialize_world(char* str, world* worl) {
 
             entity* ent = worl->w_store->entities[i];
 
-            sprintf(ser_buf,"%d,%d,%d:%d,%d,%d,%d\n", ent->kind == Player, ent->ID, ent->multi_id, ent->health, (int)ent->position->x, (int)ent->position->y, (int)(*ent->bearing * 10));
+            sprintf(ser_buf,"%d,%d,%d:%d,%d,%d,%d\n", (ent->kind == Player) ? 1 : (ent->kind == NPC ? 0 : 2), ent->ID, ent->multi_id, ent->health, (int)ent->position->x, (int)ent->position->y, (int)(*ent->bearing * 10));
 
 
             strcat(output_buf,ser_buf);
