@@ -1,37 +1,44 @@
 #include "server.h"
 
 void read_from_player_thread(int id) {
+    // printf("pre-read\n");
 
-    // printf("---> %d\n", id);
-    if (0 >= read(serv_ips[id], player_inputs + sizeof(char) * id * 3, 3)) {
+    // wait until something is read
 
-        exit_thread(id);
+    if (0 >= read(client_ips[id], input_buf + sizeof(char) * id * 3, 3)) {
+        memset(input_buf+sizeof(char) * id * 3, '-', 3);
+    } else {
+        yes = 1;
     }
-    // printf("read from %d.\n", id);
-    player_inputs_updated[id] = 1;
+    // printf("post-read\n");
 }
 
 void write_to_player(int id) {
-    // int i;
-    // for (i = 0; i < MAX_PLAYERS; i++) {
-        // if (i != id && serv_ips[i] > -1) {
-            write(serv_ips[id],player_inputs,12);
-        // }
-    // }
+    // printf("pre-write\n");
+    serialize_world(output_buf, game_world);
+    printf("%s\n", output_buf);
+    write(client_ips[id],output_buf, 512 * sizeof(char));
 }
 
 int main(int argc, char *argv[]) {
 
-    int listenfd = 0;
-    struct sockaddr_in serv_addr;
     int sock;
+    yes = 0;
 
 
     num_players = 0;
     next_empty = 0;
-    listenfd = socket(AF_INET, SOCK_STREAM, 0);
-    memset(&serv_addr, '0', sizeof(serv_addr));
 
+    int listenfd = 0;
+    listenfd = socket(AF_INET, SOCK_STREAM, 0);
+    // using nonblocking sockets
+    fcntl(listenfd, F_SETFL, O_NONBLOCK);
+
+    init_general();
+
+
+    struct sockaddr_in serv_addr;
+    memset(&serv_addr, '0', sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     serv_addr.sin_port = htons(5000);
@@ -39,159 +46,82 @@ int main(int argc, char *argv[]) {
     bind(listenfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
 
     // setup variables, - means no player, 0 means no input
-    memset(player_inputs, '-', sizeof(char) * 12);
-    memset(player_inputs_updated, -1, sizeof(int) * 4);
-    memset(player_states, -1, sizeof(int) * 4);
-    memset(serv_ips, -1, sizeof(int) * 4);
+    memset(client_ips, -1, sizeof(int) * 4);
     memset(connected, 0, sizeof(int) * 4);
 
-    player_inputs[12] = '\0';
+    input_buf[12] = '\0';
 
+    char id_buf[4];
 
 
 
     // maximum 4 connections
+    // use non-blocking sockets.
     listen(listenfd, MAX_PLAYERS);
     while(1) {
+        if ((sock = accept(listenfd, (struct sockaddr*)NULL, NULL)) != -1) {
+            printf("  Got a connection from %s on port %d\n", inet_ntoa(serv_addr.sin_addr), htons(serv_addr.sin_port));
 
-        // WARNING - NEXT LINE DOES NOT HANDLE PLAYER QUIT AND THEN JOIN
-        sock = accept(listenfd, (struct sockaddr*)NULL, NULL);
-
-        int i;
-        next_empty = -1;
-        for (i = 0; i < 4; i++) {
-            if (next_empty == -1 && !connected[i]) {
-                next_empty = i;
-                printf("  %d is the first unconnected player. Players now: %d\n", i, ++num_players);
-                break;
+            int i;
+            next_empty = -1;
+            for (i = 0; i < 4; i++) {
+                if (next_empty == -1 && !connected[i]) {
+                    next_empty = i;
+                    printf("  %d is the first unconnected player. Players now: %d\n", i, ++num_players);
+                    break;
+                }
             }
+
+            client_ips[next_empty] = sock;
+            connected[next_empty] = 1;
+
+            // send player_id info
+            sprintf(id_buf, "%d", next_empty);
+            write(client_ips[next_empty], id_buf, strlen(id_buf) + 1);
+
+
+            // finish setting up player: create player etc
+            // NEW PLAYER
+            m_player_pos[next_empty] = new_vector2(300,300);
+            m_player_angle[next_empty] = (float*) malloc(sizeof(float));
+            *m_player_angle[next_empty] = 0;
+            player_pointers[next_empty] = add_new_entity(100,game_world,Player,m_player_pos[next_empty],m_player_angle[next_empty], next_empty);
         }
 
-        serv_ips[next_empty] = sock;
-        connected[next_empty] = 1;
+        handle();
 
 
 
-        printf("  Got a connection from %s on port %d\n", inet_ntoa(serv_addr.sin_addr), htons(serv_addr.sin_port));
-
-        if (pthread_create(&threads[next_empty], NULL, &handle, &serv_ips[next_empty]) != 0) {
-            fprintf(stderr, "Failed to create thread\n");
-        }
-
-        // continue looping asap
     }
 }
 
-int is_updated(int id) { // is kinda broken.
-    int i;
-    int sum = 0;
-    for (i = 0; i < MAX_PLAYERS; i++) {
-        if (player_inputs_updated[i] > -1) {
-            sum += player_inputs_updated[i];
-        }
-    }
-    printf("%d: |%d %d|\n", id, sum, num_players);
-    return sum == num_players;
-}
-
-void *handle(void *pnewsock) {
-    char id_buf[4];
-
-    // int connfd = * (int*)pnewsock;
-
+void handle() {
 
     int i;
 
-
-    int ready_to_read;
-    int ready_to_write;
-
-    // assign player ID to thread
-    int player_id = next_empty;
-
-    // send player_id info
-    sprintf(id_buf, "%d", next_empty);
-    write(serv_ips[next_empty], id_buf, strlen(id_buf) + 1);
-    printf("  sent player id: %s\n", id_buf);
-
-    // try to have the is_updated function testing in the CENTRAL main function...
-    while (1) {
-        // update
-        // check_players();
-
-
-        // clear input for unconnected players
-        for (i = 0; i<4; i++) {
-            if (!connected[i]) {
-                memset(player_inputs + 3 * i, '-', sizeof(char) * 3);
-            }
+    while (!yes && num_players) {
+        printf("%d %d\n", yes, num_players);
+    for (i = 0; i < 4; i++) {
+        if (connected[i]) {
+            read_from_player_thread(i);
+        } else {
+            memset(input_buf+sizeof(char) * i * 3, '-', 3);
         }
-
-        // get input from client
-        player_states[player_id] = READING;
-
-        ready_to_read = 0;
-        // printf("%d ready to read\n", player_id);
-        while (!ready_to_read) {
-            // printf("%d waiting to read\n", player_id);
-            for (int i = 0; i < 4; i++) {
-                if (connected[i]) {
-                    if (player_states[i] != READING && player_states[i] != WRITING) {
-                        ready_to_read = -1;
-                        // printf("%d sees %d not ready to read\n", player_id, i);
-                        break;
-                    }
-                }
-            }
-            if (ready_to_read == 0) {
-                ready_to_read = 1;
-            } else if (ready_to_read == -1) {
-                ready_to_read = 0;
-            }
-            usleep(1000);
-        }
-        memset(player_inputs, '-', sizeof(char) * 12);
-
-        read_from_player_thread(player_id);
-        // printf("%d read\n", player_id);
-
-
-        // write to other players
-        player_states[player_id] = WRITING;
-
-        ready_to_write = 0;
-        // printf("%d ready to write\n", player_id);
-        while (!ready_to_write) {
-            // printf("%d waiting to write\n", player_id);
-            for (int i = 0; i < 4; i++) {
-                if (connected[i]) {
-                    if (player_states[i] != WRITING) {
-                        ready_to_write = -1;
-                        // printf("%d sees %d not ready to write\n", player_id, i);
-                        break;
-                    }
-                }
-            }
-            if (ready_to_write == 0) {
-                ready_to_write = 1;
-            } else if (ready_to_write == -1) {
-                ready_to_write = 0;
-            }
-            usleep(1000);
-        }
-        write_to_player(player_id);
-        // printf("%d wrote\n", player_id);
-
-        // set player_input to old if it's not -1
-        for (i = 0; i < MAX_PLAYERS; i++) {
-            if (player_inputs_updated[i]) {
-                player_inputs_updated[i] = 0;
-            }
-        }
-
-        // printf("%d end\n\n", player_id);
     }
+    }
+    if (yes) {
+        update();
+    }
+    for (i = 0; i < 4; i++) {
+        if (connected[i]) {
+            write_to_player(i);
+        }
+    }
+    yes = 0;
 
+    usleep(1000000/28); // worst fix ever.
+    // what should happen is - coordinated read/writes,
+    // or clearing the read buffer.
 }
 
 // updates num players, checks to see which player positions are null, etc...
@@ -200,20 +130,132 @@ void check_players() {
     int i;
     for (i = 0; i < 4; i++) {
         // this code for disconnected checking doesnt work.
-        if (player_inputs[i*3] == 'q') {
-            exit_thread(i);
+        if (input_buf[i*3] == 'q') {
+            printf("quit\n");
+            exit_player(i);
         }
     }
 }
 
 
-void exit_thread(int id) {
+void exit_player(int id) {
     num_players--;
     next_empty = id;
     connected[id] = 0;
-    player_inputs_updated[id] = -1;
-    player_states[id] = -1;
+    // EXIT PLAYER
+    printf("what\n");
+    free_entity(player_pointers[id], game_world->w_store);
     printf("  %d has disconnected.\n", id);
-
-    pthread_exit(threads[id]);
 }
+
+void init_general() {
+
+
+    mouse_x = mouse_y = 0;
+    mouse_xvel = mouse_yvel = 0;
+
+    game_world = new_world();
+
+    next_empty = 0;
+
+    // this creates a new enemy
+    float* enemypos = (float*) malloc(sizeof(float));
+    *enemypos = 0;
+    add_new_entity(100,game_world,NPC,new_vector2(100,100),enemypos, -1);
+}
+
+void update() {
+    update_input();
+    void (*update_enemy_p)(entity*);
+    update_enemy_p = &update_enemy;
+    for_each_entity(game_world->w_store,update_enemy_p);
+}
+
+
+void update_input() {
+    int i;
+    float si;
+    float co;
+    // iterate through all players to do following:
+    for (i = 0; i < 4; i++) {
+        // only update connected players
+        if (!connected[i])
+            continue;
+
+        si = sin(*m_player_angle[i]);
+        co = cos(*m_player_angle[i]);
+
+        // analyze inputs
+        if (input_buf[i*3]=='w') {
+            m_player_pos[i]->y += 2 * si;
+            m_player_pos[i]->x += 2 * co;
+        } else if (input_buf[i*3]=='s') {
+            m_player_pos[i]->y -= 2 * si;
+            m_player_pos[i]->x -= 2 * co;
+        } else if (input_buf[i*3]=='c') {
+            m_player_pos[i]->y += 2 * co;
+            m_player_pos[i]->x -= 2 * si;
+        } else if (input_buf[i*3]=='z') {
+            m_player_pos[i]->y -= 2 * co;
+            m_player_pos[i]->x += 2 * si;
+        }
+
+
+        if (input_buf[i*3+1]=='a') {
+            *m_player_angle[i]-=.1;
+        } else if (input_buf[i*3+1]=='d') {
+            *m_player_angle[i]+=.1;
+        }
+    }
+
+}
+
+void serialize_world(char* str, world* worl) {
+    memset(str,'\0',512);
+
+    char ser_buf[64];
+
+    int i = 0;
+    int c = 0;
+    while (c < worl->w_store->num_entities) {
+
+        if (worl->w_store->entities[i]) {
+            memset(ser_buf,'\0',64);
+
+            // for each non-null entity;
+
+            entity* ent = worl->w_store->entities[i];
+
+            sprintf(ser_buf,"%d,%d,%d:%d,%d,%d,%d\n", ent->kind == Player, ent->ID, ent->multi_id, ent->health, (int)ent->position->x, (int)ent->position->y, (int)(*ent->bearing * 10));
+
+
+            strcat(output_buf,ser_buf);
+
+            c++;
+        }
+        i++;
+    }
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

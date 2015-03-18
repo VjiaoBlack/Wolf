@@ -8,7 +8,9 @@ int damage(entity *a, int dmg) {
 entity* add_new_entity(int health, world* worl, Kind kind, vector2* pos, float* dir, int multi_id) {
 
     entity *ent = malloc(sizeof(entity));
+
     if (worl->w_store->open_spots) {
+
         ent->ID = worl->w_store->open_spots->value;
         worl->w_store->open_spots = remove_node(worl->w_store->open_spots);
         worl->w_store->num_entities++;
@@ -22,7 +24,6 @@ entity* add_new_entity(int health, world* worl, Kind kind, vector2* pos, float* 
     ent->bearing = dir;
     ent->e_mesh = worl->w_mesh;
     ent->multi_id = multi_id;
-
     worl->w_store->entities = (entity**) realloc(worl->w_store->entities, sizeof(entity*) * worl->w_store->num_entities);
 
     worl->w_store->entities[ent->ID] = ent;

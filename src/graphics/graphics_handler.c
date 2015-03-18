@@ -20,10 +20,6 @@ void draw_entity(entity* ent) {
     else
         SDL_SetRenderDrawColor( renderer, 255, 100, 100, 255 );
 
-    void (*draw_line_p)(line*);
-    draw_line_p = &draw_line;
-    mesh_for_each_line(game_world->w_mesh,draw_line_p);
-
     SDL_RenderDrawLine(renderer, (int) ent->position->x,
                                 (int) ent->position->y,
                                 (int) ent->position->x + 20*cos(*ent->bearing),
@@ -34,7 +30,11 @@ void draw_entity(entity* ent) {
 
 }
 
-
+void draw_mesh(mesh* lines) {
+    void (*draw_line_p)(line*);
+    draw_line_p = &draw_line;
+    mesh_for_each_line(lines,draw_line_p);
+}
 
 void init_sdl() {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {

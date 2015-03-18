@@ -5,14 +5,19 @@ SDL_CFLAGS	=
 
 all: wolf server
 
-wolf: bin bin/wolf.o bin/input_handler.o bin/world.o bin/mesh.o bin/line.o bin/vector2.o bin/graphics_handler.o bin/entity.o bin/enemy.o bin/physics_handler.o
-	$(LINK) bin/* $(SDL_FLAGS) -o wolf
+wolf:   bin bin/wolf.o bin/input_handler.o bin/world.o bin/mesh.o bin/line.o bin/vector2.o bin/graphics_handler.o bin/entity.o bin/physics_handler.o
+	$(LINK) bin/wolf.o bin/input_handler.o bin/world.o bin/mesh.o bin/line.o bin/vector2.o bin/graphics_handler.o bin/entity.o bin/physics_handler.o $(SDL_FLAGS) -o wolf
 
-server: src/server/server.c src/server/server.h
-	$(LINK) src/server/server.c -o server
+
+server: bin bin/server.o bin/world.o bin/mesh.o bin/line.o bin/vector2.o bin/entity.o bin/enemy.o bin/physics_handler.o
+	$(LINK) bin/server.o bin/world.o bin/mesh.o bin/line.o bin/vector2.o bin/entity.o bin/enemy.o bin/physics_handler.o -o server
+
 
 bin:
 	mkdir bin
+
+bin/server.o: src/server/server.c src/server/server.h
+	$(COMPILE) src/server/server.c -o bin/server.o
 
 bin/wolf.o: src/shared/wolf.h src/shared/wolf.c
 	$(COMPILE) src/shared/wolf.c -o bin/wolf.o

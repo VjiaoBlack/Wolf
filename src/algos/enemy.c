@@ -13,7 +13,7 @@ void update_enemy(entity* ent) {
         // do something!!!
 
 
-        *ent->bearing = atan2(player_pos->y - ent->position->y, player_pos->x - ent->position->x);
+        *ent->bearing = atan2(m_player_pos[0]->y - ent->position->y, m_player_pos[0]->x - ent->position->x);
 
         float si = sin(*ent->bearing);
         float co = cos(*ent->bearing);

@@ -1,14 +1,9 @@
 #ifndef WOLF_H
 
 #define WOLF_H
-
-
-<<<<<<< HEAD
-#define FPS 30
-=======
 #define FPS 60
->>>>>>> 2c78727b0787f4bdf693ee6b6473b01369167e6e
-#define PLAYER_VEL
+
+int mspf;
 
 #define ID_MOVEMENT 0
 #define ID_TURNING  1
@@ -30,25 +25,20 @@
 #include "../input/input_handler.h"
 #include "../graphics/graphics_handler.h"
 #include "../shared/world.h"
-#include "../algos/enemy.h"
+#include "../shared/line.h"
 
 
-int mspf;
 int player_id;
-char server_buf[13];
-int multi_players[4];
-entity* player_pointers[4];
 
-world* game_world;
-
-vector2* player_pos;
-float* player_angle;
-
-vector2* m_player_pos[4];
-float* m_player_angle[4];
 struct sockaddr_in serv_addr;
 int server_ip;
-char server_msg[4];
+char output_buf[4];
+char input_buf[512];
+
+mesh* game_mesh;
+
+
+
 
 int main(int argc, char** argv);
 void draw();

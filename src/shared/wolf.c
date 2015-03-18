@@ -3,8 +3,13 @@
 #include "wolf.h"
 
 int main(int argc, char** argv) {
+
+
+
+
     int delay;
     struct timeval pre, post;
+
 
     if (argc > 1) {
         init_multiplayer(strdup(argv[1]));
@@ -16,6 +21,7 @@ int main(int argc, char** argv) {
 
     init_general();
     init_sdl();
+
 
 
     while(1) {
@@ -39,9 +45,8 @@ int main(int argc, char** argv) {
         }
     }
 
-    free_world(game_world);
+    free_mesh(game_mesh);
 
-    free_vector2(player_pos);
 
     SDL_DestroyWindow(window);
     SDL_Quit();
@@ -49,142 +54,82 @@ int main(int argc, char** argv) {
 
 }
 
+int isready(int fd) {
+    int rc;
+    fd_set fds;
+    struct timeval tv;
+
+    FD_ZERO(&fds);
+    FD_SET(fd,&fds);
+
+    tv.tv_sec = tv.tv_usec = 0;
+    rc = select(fd+1, &fds, NULL, NULL, &tv);
+    if (rc < 0)
+      return -1;
+
+    return FD_ISSET(fd,&fds) ? 1 : 0;
+}
+
 void init_general() {
-    server_msg[3] = '\0';
-    memset(multi_players,0,4*sizeof(int));
 
     mspf = 1000 / FPS;
+
+    output_buf[3] = '\0';
 
     mouse_x = mouse_y = 0;
     mouse_xvel = mouse_yvel = 0;
 
-    game_world = new_world();
+    FILE* map = fopen("res/testmap.map", "r");
 
-    player_pos = new_vector2(300,300);
-    player_angle = (float*) malloc(sizeof(float));
-    *player_angle = 0;
+    if (map == NULL) {
+        printf("Invalid map file: check tools/map_visualizer/testmap.map\n");
+    } else {
+        printf("loaded map\n");
+    }
 
-    player_pointers[player_id] = add_new_entity(100,game_world,Player,player_pos,player_angle, player_id);
-    multi_players[player_id] = 1;
+    game_mesh = mesh_load_from_file(map);
 
 
-    // this creates a new enemy
-    float* enemypos = (float*) malloc(sizeof(float));
-    *enemypos = 0;
-    add_new_entity(100,game_world,NPC,new_vector2(100,100),enemypos, -1);
+
+
 }
 
 void update() {
     update_input();
-    void (*update_enemy_p)(entity*);
-    update_enemy_p = &update_enemy;
-    for_each_entity(game_world->w_store,update_enemy_p);
 }
 
 
 void update_input() {
-    int i;
-
-    float si = sin(*player_angle);
-    float co = cos(*player_angle);
-
 
     if (keys_held['w']) {
-        player_pos->y += 2 * si;
-        player_pos->x += 2 * co;
-        server_msg[ID_MOVEMENT] = 'w';
+        output_buf[ID_MOVEMENT] = 'w';
     } else if (keys_held['s']) {
-        player_pos->y -= 2 * si;
-        player_pos->x -= 2 * co;
-        server_msg[ID_MOVEMENT] = 's';
+        output_buf[ID_MOVEMENT] = 's';
     } else if (keys_held['c']) {
-        player_pos->y += 2 * co;
-        player_pos->x -= 2 * si;
-        server_msg[ID_MOVEMENT] = 'c';
+        output_buf[ID_MOVEMENT] = 'c';
     } else if (keys_held['z']) {
-        player_pos->y -= 2 * co;
-        player_pos->x += 2 * si;
-        server_msg[ID_MOVEMENT] = 'z';
+        output_buf[ID_MOVEMENT] = 'z';
     } else {
-        server_msg[ID_MOVEMENT] = '0';
+        output_buf[ID_MOVEMENT] = '0';
     }
 
 
     if (keys_held['a']) {
-        *player_angle-=.1;
-        server_msg[ID_TURNING] = 'a';
+        output_buf[ID_TURNING] = 'a';
     } else if (keys_held['d']) {
-        *player_angle+=.1;
-        server_msg[ID_TURNING] = 'd';
+        output_buf[ID_TURNING] = 'd';
     } else {
-        server_msg[ID_TURNING] = '0';
+        output_buf[ID_TURNING] = '0';
     }
 
-    server_msg[ID_SHOOTING] = '0';
+    output_buf[ID_SHOOTING] = '0';
 
     if (server_ip > -1) {
-        write(server_ip, server_msg, 3);
-        read(server_ip, server_buf, 12);
+        write(server_ip, output_buf, 3);
 
-        for(i = 0; i < 4; i++) {
-            // skip the self player.
-            if (multi_players[i] && i != player_id) {
-                // then player i was connected.
-                if (server_buf[i*3] == 'q') {
-                    // player i disconnected.
-                    multi_players[i] = 0;
-                    // free the player entity
-                    // note: frees positions too
-                    // doesn't work....
-                    free_entity(player_pointers[i], game_world->w_store);
-                }
-            } else if (i != player_id) {
-                // player i was not connected
-                if (server_buf[i*3] != '-') {
-                    // but player i is now connected
-                    multi_players[i] = 1;
-                    // create a player i.
-                    m_player_pos[i] = new_vector2(300,300);
-                    m_player_angle[i] = (float*) malloc(sizeof(float));
-                    *m_player_angle[i] = 0;
-                    player_pointers[i] = add_new_entity(100,game_world,Player,m_player_pos[i],m_player_angle[i], i);
-                }
-            }
-        }
+        read(server_ip, input_buf, 512);
 
-        printf("%d: %s\n", player_id, server_buf);
-
-
-        for (i = 0; i < 4; i++) {
-            // only update this for non_players
-            if (i == player_id || !multi_players[i])
-                continue;
-
-            si = sin(*m_player_angle[i]);
-            co = cos(*m_player_angle[i]);
-
-            // analyze inputs instead of keys_held
-            if (server_buf[i*3]=='w') {
-                m_player_pos[i]->y += 2 * si;
-                m_player_pos[i]->x += 2 * co;
-            } else if (server_buf[i*3]=='s') {
-                m_player_pos[i]->y -= 2 * si;
-                m_player_pos[i]->x -= 2 * co;
-            } else if (server_buf[i*3]=='c') {
-                m_player_pos[i]->y += 2 * co;
-                m_player_pos[i]->x -= 2 * si;
-            } else if (server_buf[i*3]=='z') {
-                m_player_pos[i]->y -= 2 * co;
-                m_player_pos[i]->x += 2 * si;
-            }
-
-
-            if (server_buf[i*3+1]=='a') {
-                *m_player_angle[i]-=.1;
-            } else if (server_buf[i*3+1]=='d') {
-                *m_player_angle[i]+=.1;
-            }
-        }
+        printf("%s--\n", input_buf);
 
         // update the  other players.
     }
@@ -194,13 +139,75 @@ void update_input() {
 void draw() {
     SDL_RenderClear(renderer);
 
+    SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
+
+
     void (*draw_line_p)(line*);
     draw_line_p = &draw_line;
-    mesh_for_each_line(game_world->w_mesh,draw_line_p);
 
-    void (*draw_entity_p)(entity*);
-    draw_entity_p = &draw_entity;
-    for_each_entity(game_world->w_store,draw_entity_p);
+    mesh_for_each_line(game_mesh,draw_line_p);
+
+    int kind, id, mult_id, hp, x, y, dir;
+
+    int i = 0; // offset.
+    while (i < 511 && input_buf[i] != '\0') {
+        // until the end of input_buf:
+
+        // scan
+        sscanf(input_buf + i,"%d,%d,%d:%d,%d,%d,%d\n", &kind, &id, &mult_id, &hp, &x, &y, &dir); // 0 is npc, 1 is player
+
+                // Creat a rect at pos ( 50, 50 ) that's 50 pixels wide and 50 pixels high.
+
+        SDL_Rect r;
+        r.x = x - 10;
+        r.y = y - 10;
+        r.w = 20;
+        r.h = 20;
+
+
+        switch (kind) {
+            case 0:
+                // NPC
+                SDL_SetRenderDrawColor( renderer, 255, 100, 100, 255 );
+                break;
+            case 1:
+                // PLAYER
+                switch(mult_id) {
+                    case 0:
+                        SDL_SetRenderDrawColor( renderer, 100, 100, 255, 255 );
+                        break;
+                    case 1:
+                        SDL_SetRenderDrawColor( renderer, 100, 255, 100, 255 );
+                        break;
+                    case 2:
+                        SDL_SetRenderDrawColor( renderer, 100, 200, 200, 255 );
+                        break;
+                    case 3:
+                        SDL_SetRenderDrawColor( renderer, 200, 100, 200, 255 );
+                        break;
+
+                }
+                break;
+        }
+
+
+        SDL_RenderDrawLine(renderer,x,y,x + 20*cos((float) dir / 10.0),y + 20*sin((float) dir / 10.0));
+
+        // Render rect
+        SDL_RenderFillRect( renderer, &r );
+
+
+        // inc i
+        while (input_buf[i] != '\n') {
+            ++i;
+        }
+        ++i;
+
+    }
+
+    // void (*draw_entity_p)(entity*);
+    // draw_entity_p = &draw_entity;
+    // for_each_entity(game_mesh->w_store,draw_entity_p);
 
     SDL_RenderPresent(renderer);
 
@@ -242,12 +249,7 @@ void init_multiplayer(char* serv) {
     printf("reading player id...\n");
     read(server_ip, id_buf, 5);
     player_id = atoi(id_buf);
-    printf("read player id!\n");
+    printf("read player id! %d\n", player_id);
 
-
-
-    memset(server_buf, '-', sizeof(char) * 12);
-
-    server_buf[12] = '\0';
-
+    memset(input_buf, '\0', 512);
 }
