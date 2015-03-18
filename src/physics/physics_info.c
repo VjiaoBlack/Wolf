@@ -1,6 +1,9 @@
 #include "physics_info.h"
 
 
+/*
+ *  initalizes all of the walls of the mesh as a collection of points (obstacles)
+ */
 void initialize_terrain(mesh *m) {
 	line **lines = m->m_lines;
 	int line_num = m->num_walls;
@@ -39,13 +42,20 @@ void initialize_terrain(mesh *m) {
 	}
 }
 
+/*
+ *  checks whether location loc is near an obstacle
+ */
 int is_open(vector2 *loc) {
 	for (int i = 0; i < ter->num_obstacles; ++i)
+		//change to "square_distance" to change shape from circle to square
 		if (distance(loc, ter->obstacles[i]) < RADIUS)
 			return 0;
 	return 1;
 }
 
+/*
+ *  frees up memory space from terrain
+ */
 void free_terrain(){
 	for (int i = 0; i < ter->num_obstacles; ++i)
 		free_vector2(ter->obstacles[i]);

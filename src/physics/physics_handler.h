@@ -9,6 +9,9 @@
 
 #include <unistd.h>
 
+/*
+ *  checks whether a move is valid
+ */
 int valid_move(vector2 *pos, int x_off, int y_off, world *w);
 
 #endif

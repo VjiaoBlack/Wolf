@@ -2,6 +2,9 @@
 // int intersect(line *a, line *b);
 // int orientation(line *l, vector2 *pt);
 
+/*
+ *  checks whether a move is valid
+ */
 int valid_move(vector2 *pos, int x_off, int y_off, world *w) {
 	//initialize_terrain(w->w_mesh);
 	vector2 *v = new_vector2(pos->x + x_off, pos->y + y_off);
