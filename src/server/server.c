@@ -4,12 +4,14 @@ void read_from_player_thread(int id) {
     // printf("pre-read\n");
 
     // wait until something is read
-
-    if (0 >= read(client_ips[id], input_buf + sizeof(char) * id * 3, 3)) {
-        memset(input_buf+sizeof(char) * id * 3, '-', 3);
-    } else {
-        yes = 1;
-    }
+    // while (!yes) {
+        yes = 0;
+        if (0 >= read(client_ips[id], input_buf + sizeof(char) * id * 3, 3)) {
+            memset(input_buf+sizeof(char) * id * 3, '-', 3);
+        } else {
+            yes = 1;
+        }
+    // }s
     // printf("post-read\n");
 }
 
@@ -93,6 +95,8 @@ int main(int argc, char *argv[]) {
 
 
     }
+
+    free_terrain();
 }
 
 void handle() {
@@ -119,7 +123,7 @@ void handle() {
     }
     yes = 0;
 
-    usleep(1000000/28); // worst fix ever.
+    usleep(1000000/65); // worst fix ever.
     // what should happen is - coordinated read/writes,
     // or clearing the read buffer.
 }
@@ -155,6 +159,8 @@ void init_general() {
     mouse_xvel = mouse_yvel = 0;
 
     game_world = new_world();
+
+    initialize_terrain(game_world->w_mesh);
 
     next_empty = 0;
 
@@ -204,10 +210,10 @@ void update_input() {
         }
 
 
-        // if (valid_move(m_player_pos[i], x, y, game_world)) {
+        if (valid_move(m_player_pos[i], x, y, game_world)) {
             m_player_pos[i]->x += x;
             m_player_pos[i]->y += y;
-        // }
+        }
 
         if (input_buf[i*3+1]=='a') {
             *m_player_angle[i]-=.1;
