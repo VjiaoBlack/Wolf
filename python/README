@@ -10,3 +10,7 @@ A Pather object can be constructed from a Map object. This object creates waypoi
 The renderer has capability to draw maps, graphs, or paths. The graphics close upon clicking on the window.
 
 Geom is a bunch of geometric helper functions.
+
+Run $ python path_finder.py to run the pathfinding algorithm with a map file, source point, and target point specified in the code.
+
+NB: Pathfinding will search out of bounds of the window; the quick fix here is to put a box around the boundaries of the map.

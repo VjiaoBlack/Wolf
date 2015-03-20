@@ -16,12 +16,10 @@ class Pather:
 				if feas_distance(g.vertices[i], g.vertices[j], m.walls) == float("inf"):
 					g.remove_edge(i, j)
 
-		# uncomment if you want to see the graph of the waypoints
-		# win = GraphWin("Waypoint Graph", 600, 600)
-		# draw_graph(g, win)
-		# win.getMouse()
-		# win.close()
-
+		win = GraphWin("Waypoint Graph", 600, 600)
+		draw_graph(g, win)
+		win.getMouse()
+		win.close()
 		self.costs, self.paths = g.floyd_warshall()
 
 	def path(self, source, tar):
@@ -34,6 +32,13 @@ class Pather:
 			print str(source) + " -> " + str(tar)
 			return [source, tar]
 
+		# for i in range(len(self.waypoints)):
+		# 	a = self.waypoints[i]
+		# 	cur_cost = feas_distance(source, a, self.walls) + feas_distance(a, tar, self.walls)
+		# 	if cur_cost < min_cost:
+		# 		stop1 = a
+		# 		min_cost = cur_cost
+
 		for i in range(len(self.waypoints)):
 			for j in range(len(self.waypoints)):
 				a = self.waypoints[i]
@@ -45,7 +50,7 @@ class Pather:
 
 		if stop1 == None:
 			print("No paths found...")
-			return None
+			return [source, tar]
 
 		# if stop2 == None:
 		# 	print str(source) + " -> " + str(stop1) + " -> " + str(tar)
@@ -58,7 +63,7 @@ class Pather:
 		return map(lambda x: self.waypoints[x], path)
 
 
-m = Map("../res/pythtest.map")
+# m = Map("../res/pythtest.map")
 win = render_map(m, "black")
 pthr = Pather(m)
 
