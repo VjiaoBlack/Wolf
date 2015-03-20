@@ -64,9 +64,6 @@ class Pather:
 
 
 # m = Map("../res/pythtest.map")
-m = Map("../res/pythtest2.map")
-# m = Map("../res/pythtest3.map")
-
 win = render_map(m, "black")
 pthr = Pather(m)
 
