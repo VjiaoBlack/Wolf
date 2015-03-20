@@ -8,10 +8,131 @@ Basics
 
 All the source code is located in source.
 
+See below for team member summary / writeup!
+
 Run `make` to build the project into the `build` directory.
+Currently, the game requires a server to run.
+
+To run the game:
+./server
+./wolf <ip>
+
+In single player mode, you can run the server in one terminal window, 
+and the client in another. Use 127.0.0.1 as the IP.
+
+WASD to move, space to shoot, AD to go sideways.
+
+Once you kill an enemy, two appear. When you or an enemy get low on health,
+your color fades to gray.
+
+Beware, you can only have one bullet in game at a time! 
+Basically, you are more effective close-range, and it's bad to miss.
 
 Team Members
 ------------
 Victor  Jiao    -> Game Logic
 John    Lekberg -> Graphics
 Michael Borde   -> Algorithms
+
+
+VICTOR JIAO =====
+I worked on the server and implementing the game.
+You can check my commits to see what code is mine, etc!
+
+The current 2D SDL Graphics is also of my creation, and I also created a very basic AI for movement.
+
+The game itself has a simple concept. You can move - enemies follow the closest player.
+You can shoot them, and they hurt you if they're really close to you.
+
+The SDL was tricky to load correctly, but after that, it was mostly fine.
+Along with implementing the basic graphics, I implemented (in related circles):
+- the map IO (of walls)
+- delta timing to reduce the effects of lag, and get a consistent timing as this IS an "FPS"
+- having a different color per player (up to 4 players), and having the characters' color depend on HP
+
+John suggested we use function pointers to create basically a coding schema where we can essentially use "for each" loops, 
+so I did that as well. It turned out to be invaluable for drawing and rendering things.
+
+
+The algorithmic side was a bit more tricker. In the end I just opted for the simplest and easiest algorithm as a placeholder.
+I implemented:
+- greedy search. The zombie would go through the list of all entites, and for players, find the closest one, imeediately
+turn to that one, and then move towards it. Nothing special.
+- shooting. Bullets are created as entites, and they check all the entties to see if they scored a hit. If they did,
+then they take off HP, and then destroy themselves. If the enemy HP is zero, it destroys the enemy.
+- movement. It's just forward/back/stride left/right, and also rotate. The main controls are just fwrd/back and rotate.
+
+The hardest part for me (apart from getting the game to run) was the server.
+This was done in 2 stages.
+First stage was right after I got the basic client version to work. I built a server externally, and just had the
+client send useful information.
+I used blocking sockets and threads, and had each player send 3 chars per tick. First char was movement, second was rotation, third 
+was shooting. 
+I got the server to collect information from all connected players, and then merge them together into a string of
+length 12. For unconnnected players, the charcter array would be "---". Unpressed keys would show up as '0' (parodying the null byte)
+This became a problem quickly. It was hard to make sure all the servers would write and read correctly, and at the right times.
+What would happen was that before a client started writing, another one would loop around and start reading, and both would be 
+stuck, because for both of them not all the clients are doing the same thing.
+In the end, I figured out a fix where I made each client update its status - whether it was READING or WRITING - so that
+all the clients could keep in sync better. Check commit c6069b01a2 for this... Wolf/src/server/server.c
+
+Then the server was really laggy and I realized players who joined mid-game would somehow need the current positions of the
+other players and the NPCs and stuff, and I decided I needed to scrap this model and make a centralized server.
+
+I kept the communication from the player to the server the same - just 3 chars. However, I needed to constantly pass
+back strings containt sprintf'd data of all the entities to the players (just the entities, since the map is static 
+and I don't need to pass that at all if the player has the right copy).
+This is fine since bandwith upload speeds are like at least 4MB/s, and so thats 1MB/player, and even at 100fps that's 10kb/s. 
+I definitely am not passing back strings of 10,000 chars per frame. Nope.
+
+Also I used nonblocking sockets and removed threads, cuz I felt like I didn't need them anymore.
+Since it doesn't matter if we pass information to the clients many times or not at all per frame, we can just
+keep passing back information whenever the server thinks it's appropriate and it'll be fine.
+This also made reading and writing as easy as a for loop over the clients.
+
+Then I moved the game logic code from wolf.c to server.c
+Thus, I would only need to take care of things once on the server, instead of checking collisions on all the clients 
+and then sending them back to modify the server's world.
+
+So then I turned the client into basically a graphics machine where it would read from the server, look at the entity data,
+and then draw all communicated entities.
+And it worked! yay.
+
+Also I was kinda lazy to make linked lists and stuff at the beginning, and I didn't want to deal with allocs all the time.
+
+So what I did was I made another linked list (wow I'm so smart) to keep track of the empty positions in arrays
+left by exits. This is how I handled entities. If spots 0 1 9 are filled, the next new entity would just go to 2.
+
+I did the same with servers, except i used [4] everywhere cuz I knew i wanted a max of 4 players.
+
+Also, handling exits and joins niely were hard. They worked on the 1st server edition (not sure about 2nd).
+But they were really nice. If player 0 joined and then 1 joined and then 0 left, the next player to join
+would just take player 0's spot and it was great.
+
+basic basic simplified code structure.
+client (wolf.c):
+main
+  init map
+  init general
+  init multiplayer
+  game loop
+    read from server
+    draw
+    update input
+    write to server
+  fin
+  
+server.c:
+main
+  init map
+  init general
+  loop
+    read from all connected clients
+    update infos
+    write to all clients
+    handle weird join/exits
+  fin
+  
+  
+  
+
