@@ -1,0 +1,12 @@
+README for python stuff, which hasn't been linked into the rest of the project
+Since the pathfinding is pretty complicated, I thought C would be too messy.
+
+This program has its own independent map generation and rendering system.
+
+It creates a Map object from a .map file.
+
+A Pather object can be constructed from a Map object. This object creates waypoints on the ends of each wall in the map. It constructs a complete graph from these and then removes edges that intersect a wall. Floyd-Warshall is then performed on this graph and the results are saved to instance variables so that they may be used later.
+
+The renderer has capability to draw maps, graphs, or paths. The graphics close upon clicking on the window.
+
+Geom is a bunch of geometric helper functions.

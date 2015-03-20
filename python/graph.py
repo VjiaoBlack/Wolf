@@ -1,3 +1,5 @@
+# graph module
+
 from geom import *
 from graphics import *
 
@@ -20,6 +22,8 @@ class Graph:
 			string += "\n"
 		return string
 
+
+	# string representation of adjacency list
 	@staticmethod
 	def al_to_string(adj):
 		string = ""
@@ -31,6 +35,7 @@ class Graph:
 			string += "\n"
 		return string
 
+	# string representation of Floyd-Warshall cost matrix
 	@staticmethod
 	def fl_to_string(fl):
 		string = ""
@@ -89,6 +94,7 @@ class Graph:
 		adj = self.adjlist()
 		return Graph.al_to_string(adj)
 
+	# Floyd-Warshall algorithm
 	def floyd_warshall(self):
 		V = self.v_num
 		dist = [[float("inf") for x in range(V)] for x in range(V)]
@@ -113,6 +119,7 @@ class Graph:
 						next[j][i] = next[j][k]
 		return dist, next
 
+	# converts the result from Floyd-Warshall into a list of nodes
 	@staticmethod
 	def fw_path(next, u, v):
 		if next[u][v] == None:
